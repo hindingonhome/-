@@ -12,9 +12,9 @@
     "build": "node build.mjs dist",
     "desktop:prepare": "node node_modules/electron/install.js",
     "desktop:dev": "pnpm build && pnpm desktop:prepare && electron .",
-    "desktop:dist": "pnpm build && electron-builder --win portable nsis",
+    "desktop:dist": "pnpm build && electron-builder --win portable nsis --publish never",
     "desktop:dir": "pnpm build && electron-builder --win dir",
-    "desktop:linux": "pnpm build && electron-builder --linux tar.xz --x64",
+    "desktop:linux": "pnpm build && electron-builder --linux tar.xz --x64 --publish never",
     "desktop:mac": "pnpm build && electron-builder --mac zip",
     "mobile:prepare": "pnpm build && node mobile/build.mjs",
     "mobile:sync": "pnpm mobile:prepare && cap sync android"
