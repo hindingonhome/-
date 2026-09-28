@@ -1,0 +1,86 @@
+name: Publish Windows release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: windows-release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Determine release tag
+        id: version
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          if ($version -notmatch '^\d+\.\d+\.\d+$') { throw "Expected a three-part package version, got: $version" }
+          $tag = "V$version"
+          "tag=$tag" >> $env:GITHUB_OUTPUT
+          gh release view $tag --repo $env:GITHUB_REPOSITORY *> $null
+          if ($LASTEXITCODE -eq 0) {
+            'exists=true' >> $env:GITHUB_OUTPUT
+            Write-Output "Release $tag already exists; bump package.json version to publish an update."
+          } else {
+            'exists=false' >> $env:GITHUB_OUTPUT
+          }
+      - uses: pnpm/action-setup@v4
+        if: steps.version.outputs.exists == 'false'
+        with:
+          version: 11.25.0
+      - uses: actions/setup-node@v4
+        if: steps.version.outputs.exists == 'false'
+        with:
+          node-version: '24'
+          cache: pnpm
+      - name: Install and test
+        if: steps.version.outputs.exists == 'false'
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm test
+      - name: Build portable app, installer, and HTML
+        if: steps.version.outputs.exists == 'false'
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: pnpm desktop:dist
+      - name: Publish release
+        if: steps.version.outputs.exists == 'false'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          $files = @(
+            'dist/金属工坊.html',
+            'desktop-dist/MetalLab-1.0.0-Windows-Portable-x64.exe',
+            'desktop-dist/MetalLab-1.0.0-Windows-Setup-x64.exe'
+          )
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          $files[1] = "desktop-dist/MetalLab-$version-Windows-Portable-x64.exe"
+          $files[2] = "desktop-dist/MetalLab-$version-Windows-Setup-x64.exe"
+          foreach ($file in $files) { if (-not (Test-Path -LiteralPath $file)) { throw "Missing release file: $file" } }
+          $hashes = foreach ($file in $files) {
+            $hash = (Get-FileHash -Algorithm SHA256 -LiteralPath $file).Hash.ToLowerInvariant()
+            "$hash  $([System.IO.Path]::GetFileName($file))"
+          }
+          [System.IO.File]::WriteAllText((Join-Path (Get-Location) 'SHA256SUMS.txt'),(($hashes -join "`n")+"`n"),[System.Text.UTF8Encoding]::new($false))
+          $arguments = @('release','create',$env:RELEASE_TAG,'--repo',$env:GITHUB_REPOSITORY,'--title',$env:RELEASE_TAG,'--target',$env:GITHUB_SHA)
+          if ($env:RELEASE_TAG -eq 'V1.0.0') {
+            $arguments += @('--notes-file','docs/releases/V1.0.0.md')
+          } else {
+            $arguments += '--generate-notes'
+          }
+          $arguments += $files
+          $arguments += 'SHA256SUMS.txt'
+          & gh @arguments
+          if ($LASTEXITCODE -ne 0) { throw 'GitHub release creation failed' }

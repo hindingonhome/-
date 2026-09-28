@@ -1,0 +1,6 @@
+{
+  "appId": "cn.metallab.mobile",
+  "appName": "金属工坊",
+  "webDir": "mobile-web",
+  "bundledWebRuntime": false
+}

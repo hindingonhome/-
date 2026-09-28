@@ -1,0 +1,10 @@
+import {build} from 'esbuild';import fs from 'node:fs/promises';import path from 'node:path';
+const worker=await build({entryPoints:['src/compute-worker.mjs'],bundle:true,minify:true,format:'iife',target:['es2020'],write:false});
+await fs.writeFile('src/worker-code.txt',worker.outputFiles[0].text);
+const result=await build({entryPoints:['src/app.mjs'],bundle:true,minify:true,format:'iife',target:['es2020'],write:false,legalComments:'inline',loader:{'.txt':'text'}});
+const css=await fs.readFile('src/style.css','utf8');let html=await fs.readFile('src/index.html','utf8');
+html=html.replace('/*__STYLE__*/',css).replace('/*__APP__*/',()=>result.outputFiles[0].text.replaceAll('</script','<\\/script'));
+const poster=await fs.readFile('src/assets/welcome-poster.webp');html=html.replace('__WELCOME_POSTER__',`data:image/webp;base64,${poster.toString('base64')}`);
+const icon=await fs.readFile('desktop/icon.svg');html=html.replaceAll('__APP_ICON__',`data:image/svg+xml;base64,${icon.toString('base64')}`);
+const license=await fs.readFile('node_modules/three/LICENSE','utf8');html=html.replace('</head>',`<!-- Bundled Three.js license:\n${license.replaceAll('--','—')}\n--></head>`);
+const out=path.resolve(process.argv[2]||'dist');await fs.mkdir(out,{recursive:true});await fs.writeFile(path.join(out,'金属工坊.html'),html);console.log('Built self-contained HTML:',Buffer.byteLength(html),'bytes');

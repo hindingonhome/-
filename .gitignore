@@ -1,0 +1,16 @@
+node_modules/
+dist/
+desktop-dist/
+mobile-web/
+android/app/src/main/assets/public/
+android/.gradle/
+android/app/build/
+android/*.jks
+android/*.keystore
+android/app/*.jks
+android/app/*.keystore
+.desktop-test-profile/
+.desktop-test-profile-*/
+*.log
+*.tsbuildinfo
+.DS_Store

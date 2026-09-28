@@ -1,0 +1,2 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {zipFiles} from '../src/archive.mjs';
+test('batch JPG archive has one named entry per selected record',()=>{const bytes=zipFiles([{name:'甲.jpg',data:new Uint8Array([255,216,255,217])},{name:'乙.jpg',data:new Uint8Array([255,216,1,217])}]);const text=new TextDecoder().decode(bytes);assert.deepEqual([...bytes.subarray(0,4)],[80,75,3,4]);assert.match(text,/甲\.jpg/);assert.match(text,/乙\.jpg/);assert.deepEqual([...bytes.subarray(-22,-18)],[80,75,5,6]);});
