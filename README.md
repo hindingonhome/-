@@ -13,7 +13,7 @@
 - **Windows 免安装便携版**：下载 `MetalLab-*-Windows-Portable-x64.exe`，双击运行。
 - **Windows 安装版**：下载 `MetalLab-*-Windows-Setup-x64.exe`，按安装向导操作。
 - **Linux x64 便携版**：下载 `MetalLab-*-Linux-x64.tar.xz`，解压后运行其中的程序。首次运行前可核对 `SHA256SUMS-Linux.txt`。
-- **离线浏览版**：下载 `金属工坊.html`，使用 Chrome、Edge 等现代浏览器打开。同一个 HTML 会适配桌面和手机竖屏。
+- **离线浏览版**：下载 `MetalLab-*-Offline.html`，使用 Chrome、Edge 等现代浏览器打开。同一个 HTML 会适配桌面和手机竖屏。
 
 软件无需注册账号，核心计算在本机完成。Windows 安装程序目前没有商业代码签名证书；请只从本仓库的发布页下载，并核对发布附件中的 `SHA256SUMS.txt`。
 

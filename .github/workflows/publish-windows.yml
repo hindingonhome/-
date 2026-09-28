@@ -72,7 +72,8 @@ jobs:
           foreach ($file in $files) { if (-not (Test-Path -LiteralPath $file)) { throw "Missing release file: $file" } }
           $hashes = foreach ($file in $files) {
             $hash = (Get-FileHash -Algorithm SHA256 -LiteralPath $file).Hash.ToLowerInvariant()
-            "$hash  $([System.IO.Path]::GetFileName($file))"
+            $name = if ($file -eq $files[0]) { "MetalLab-$version-Offline.html" } else { [System.IO.Path]::GetFileName($file) }
+            "$hash  $name"
           }
           [System.IO.File]::WriteAllText((Join-Path (Get-Location) 'SHA256SUMS.txt'),(($hashes -join "`n")+"`n"),[System.Text.UTF8Encoding]::new($false))
           $arguments = @('release','create',$env:RELEASE_TAG,'--repo',$env:GITHUB_REPOSITORY,'--title',$env:RELEASE_TAG,'--target',$env:GITHUB_SHA)
@@ -81,7 +82,7 @@ jobs:
           } else {
             $arguments += '--generate-notes'
           }
-          $arguments += $files
+          $arguments += @("$($files[0])#MetalLab-$version-Offline.html", $files[1], $files[2])
           $arguments += 'SHA256SUMS.txt'
           & gh @arguments
           if ($LASTEXITCODE -ne 0) { throw 'GitHub release creation failed' }
