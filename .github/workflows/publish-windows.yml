@@ -27,8 +27,9 @@ jobs:
           if ($version -notmatch '^\d+\.\d+\.\d+$') { throw "Expected a three-part package version, got: $version" }
           $tag = "V$version"
           "tag=$tag" >> $env:GITHUB_OUTPUT
-          gh release view $tag --repo $env:GITHUB_REPOSITORY *> $null
-          if ($LASTEXITCODE -eq 0) {
+          $releases = gh release list --repo $env:GITHUB_REPOSITORY --json tagName --limit 1000 | ConvertFrom-Json
+          if ($LASTEXITCODE -ne 0) { throw 'Could not list repository releases.' }
+          if ($releases | Where-Object { $_.tagName -eq $tag }) {
             'exists=true' >> $env:GITHUB_OUTPUT
             Write-Output "Release $tag already exists; bump package.json version to publish an update."
           } else {
