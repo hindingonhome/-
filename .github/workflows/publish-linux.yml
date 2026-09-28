@@ -55,5 +55,5 @@ jobs:
         run: |
           file="desktop-dist/MetalLab-${RELEASE_VERSION}-Linux-x64.tar.xz"
           test -f "$file"
-          sha256sum "$file" > SHA256SUMS-Linux.txt
+          (cd desktop-dist && sha256sum "MetalLab-${RELEASE_VERSION}-Linux-x64.tar.xz") > SHA256SUMS-Linux.txt
           gh release upload "$RELEASE_TAG" "$file" SHA256SUMS-Linux.txt --repo "$GITHUB_REPOSITORY" --clobber
