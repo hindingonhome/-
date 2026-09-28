@@ -1,0 +1,59 @@
+name: Publish Linux release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag, for example V1.0.0
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'release' && github.event.release.tag_name || inputs.tag }}
+      - name: Validate release version
+        id: version
+        shell: bash
+        env:
+          REQUESTED_TAG: ${{ github.event_name == 'release' && github.event.release.tag_name || inputs.tag }}
+        run: |
+          version=$(node -p "require('./package.json').version")
+          if [ "$REQUESTED_TAG" != "V$version" ]; then
+            echo "Tag $REQUESTED_TAG does not match package version $version" >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=$REQUESTED_TAG" >> "$GITHUB_OUTPUT"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+      - name: Install and test
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm test
+      - name: Build Linux x64 archive
+        run: pnpm desktop:linux
+      - name: Upload Linux archive and checksum
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
+          RELEASE_VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          file="desktop-dist/MetalLab-${RELEASE_VERSION}-Linux-x64.tar.xz"
+          test -f "$file"
+          sha256sum "$file" > SHA256SUMS-Linux.txt
+          gh release upload "$RELEASE_TAG" "$file" SHA256SUMS-Linux.txt --repo "$GITHUB_REPOSITORY" --clobber

@@ -1,13 +1,13 @@
 # 更新和发布
 
-本仓库的 `main` 分支包含可编辑源码。GitHub Actions 在每次推送 `main` 后检查 `package.json` 里的版本号；只有对应的 `V版本号` 发布不存在时才构建并发布 Windows 便携版、安装版、离线 HTML 和 SHA-256 校验表。
+本仓库的 `main` 分支包含可编辑源码。GitHub Actions 在每次推送 `main` 后检查 `package.json` 里的版本号；只有对应的 `V版本号` 发布不存在时才构建并发布 Windows 便携版、安装版、离线 HTML 和 SHA-256 校验表。版本发布后，Linux 工作流会构建 x64 便携压缩包并追加到同一发布页。
 
 更新流程：
 
 1. 克隆本仓库，在 Codex 中打开根目录，修改 `src/` 等源码，不要只编辑 `dist/`。
 2. 修改 `package.json` 的 `version`，例如从 `1.0.0` 改成 `1.0.1`。版本号必须符合三段数字格式；已经发布过的版本号不会再次发布。
 3. 本地运行 `pnpm install --frozen-lockfile`、`pnpm test`、`pnpm build` 并检查界面。
-4. 提交并推送到 `main`。GitHub Actions 的“Publish Windows release”任务会运行同样的测试和构建；成功后创建 `V1.0.1` 标签与下载页。
+4. 提交并推送到 `main`。GitHub Actions 的“Publish Windows release”任务会运行同样的测试和构建；成功后创建 `V1.0.1` 标签与下载页。随后“Publish Linux release”追加 Linux 包。
 5. 在 GitHub 的 Actions 和 Releases 页面核对任务状态、版本号和附件，再让使用者下载。
 
 首次发布 V1.0.0 使用 `docs/releases/V1.0.0.md` 的说明；以后版本自动根据提交生成发布说明，建议每次提交写清变化。
