@@ -1,0 +1,70 @@
+name: Rebuild existing release
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag to replace
+        required: true
+        default: V1.0.0
+permissions:
+  contents: write
+jobs:
+  rebuild:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+      - name: Validate and test
+        shell: pwsh
+        env:
+          REQUESTED_TAG: ${{ inputs.tag }}
+        run: |
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          if ($env:REQUESTED_TAG -ne "V$version") { throw 'Release tag does not match package version.' }
+          pnpm install --frozen-lockfile
+          if ($LASTEXITCODE -ne 0) { throw 'Install failed.' }
+          pnpm test
+          if ($LASTEXITCODE -ne 0) { throw 'Tests failed.' }
+      - name: Build Windows
+        if: runner.os == 'Windows'
+        run: pnpm desktop:dist
+      - name: Build Linux
+        if: runner.os == 'Linux'
+        run: pnpm desktop:linux
+      - name: Replace release assets
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: |
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          $html = Get-Content 'dist/金属工坊.html' -Raw
+          if ($html -match '(?i)create\s+by\s+chamber') { throw 'Removed welcome credit remains in built application.' }
+          if ($env:RUNNER_OS -eq 'Windows') {
+            $offline = "dist/MetalLab-$version-Offline.html"
+            Copy-Item -LiteralPath 'dist/金属工坊.html' -Destination $offline
+            $files = @($offline,"desktop-dist/MetalLab-$version-Windows-Portable-x64.exe","desktop-dist/MetalLab-$version-Windows-Setup-x64.exe")
+            $checksum = 'SHA256SUMS.txt'
+          } else {
+            $files = @("desktop-dist/MetalLab-$version-Linux-x64.tar.xz")
+            $checksum = 'SHA256SUMS-Linux.txt'
+          }
+          $lines = foreach ($file in $files) {
+            if (-not (Test-Path -LiteralPath $file)) { throw "Missing release file: $file" }
+            $hash = (Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash.ToLowerInvariant()
+            "$hash  $([IO.Path]::GetFileName($file))"
+          }
+          [IO.File]::WriteAllText((Join-Path (Get-Location) $checksum),($lines -join "`n")+"`n",[Text.UTF8Encoding]::new($false))
+          $arguments = @('release','upload',$env:RELEASE_TAG,'--repo',$env:GITHUB_REPOSITORY,'--clobber') + $files + @($checksum)
+          & gh @arguments
+          if ($LASTEXITCODE -ne 0) { throw 'Asset upload failed.' }
