@@ -15,6 +15,14 @@ export const currencies=Object.freeze([
 ]);
 
 const rateByCode=new Map(currencies.map(({code,rate})=>[code,rate]));
+let currentSnapshot={date:CURRENCY_SNAPSHOT_DATE,source:'ECB',base:'EUR',rates:Object.fromEntries(rateByCode)};
+export function getCurrencySnapshot(){return {...currentSnapshot,rates:{...currentSnapshot.rates}};}
+export function setCurrencySnapshot(snapshot){
+ if(!snapshot||!/^\d{4}-\d{2}-\d{2}$/.test(snapshot.date))throw Error('Invalid currency date');
+ const rates=new Map();for(const {code} of currencies){const value=snapshot.rates?.[code];if(typeof value!=='number'||!Number.isFinite(value)||value<=0)throw Error('Invalid currency rate');rates.set(code,value);}
+ for(const [code,value] of rates)rateByCode.set(code,value);currentSnapshot={date:snapshot.date,source:snapshot.source??'Frankfurter / ECB',base:snapshot.base??'USD',rates:Object.fromEntries(rates)};
+}
+export function resetCurrencySnapshot(){for(const {code,rate} of currencies)rateByCode.set(code,rate);currentSnapshot={date:CURRENCY_SNAPSHOT_DATE,source:'ECB',base:'EUR',rates:Object.fromEntries(rateByCode)};}
 const localeFor=locale=>({en:'en-US',ja:'ja-JP',ko:'ko-KR'}[locale]??locale);
 const formatters=new Map();
 

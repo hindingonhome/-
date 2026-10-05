@@ -15,3 +15,5 @@
 本机现有 `.mlab` 工程与源模型不在 Git 仓库中。修改工程格式时先保留旧文件兼容读取，并增加迁移测试。`src/currency.mjs` 的离线汇率如需更新，请核实汇率来源、日期和所有币种后一起更新测试和文档。
 
 Windows 产物未使用可信发行证书签名。公开商用发行前应单独配置代码签名并完成安装验证。
+
+参考行情模块为 src/live-market.mjs、src/market-ui.mjs，固定允许 Gold API 与 Frankfurter 域名。维护接口时核对原始计价单位、时间戳、每日汇率和缓存兼容性，运行 tests/live-market.test.mjs。变更接口域名时同步修改 desktop/main.cjs 的 connect-src 白名单。手动采购报价不可被定时刷新覆盖。

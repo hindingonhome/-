@@ -164,3 +164,5 @@ html[lang="en"] .lightweight .tools-menu>div{width:242px}
 }
 @media(max-width:980px){.lightweight .library-content{max-height:none;overflow:visible}.lightweight .right-column{overflow:visible}.lightweight .property-body,.lightweight .cost-body,.lightweight .cost-summary-body{overflow:visible;max-height:none}}
 @media(max-width:600px){.lightweight .tools-menu>div{left:auto;right:0;max-width:calc(100vw - 24px)}}
+
+.reference-market{margin:20px 0;padding:14px 0;border-top:1px solid #4b4e55;border-bottom:1px solid #4b4e55}.reference-head,.reference-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}.reference-market>strong{display:block;font-size:22px;color:#efac6c}.reference-market .hint{overflow-wrap:anywhere;line-height:1.65}.reference-actions button{flex:1;min-width:130px;padding:10px}.market-toggle{display:flex;align-items:center;gap:8px;margin-top:14px;font-size:12px}.market-toggle input{width:auto;accent-color:#efac6c}.reference-head .text-btn{padding:4px}

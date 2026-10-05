@@ -100,7 +100,7 @@ else {
       const html = await fs.readFile(htmlPath);
       return new Response(html, {headers: {
         'content-type': 'text/html; charset=utf-8',
-        'content-security-policy': "default-src 'none'; script-src 'self' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline'; worker-src blob:; img-src 'self' data: blob:; connect-src 'self' blob:; font-src 'self' data:; base-uri 'none'; object-src 'none'; form-action 'none'"
+        'content-security-policy': "default-src 'none'; script-src 'self' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline'; worker-src blob:; img-src 'self' data: blob:; connect-src 'self' blob: https://api.gold-api.com https://api.frankfurter.dev; font-src 'self' data:; base-uri 'none'; object-src 'none'; form-action 'none'"
       }});
     });
     session.defaultSession.on('will-download', (_event, item, contents) => {

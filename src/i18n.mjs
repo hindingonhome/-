@@ -1,4 +1,5 @@
 import OpenCC from 'opencc-js';
+import {translateMarket} from './market-copy.mjs';
 import {localeMaps,localePatterns} from './i18n-ja-ko.mjs';
 
 const toTraditional=OpenCC.Converter({from:'cn',to:'tw'});
@@ -156,7 +157,7 @@ export function translateText(value,locale){
  if(locale==='zh-TW')return toTraditional(value);
  const text=String(value),trimmed=text.trim();
  if(!trimmed)return text;
- let translated=locale==='ja'||locale==='ko'?localeMaps[locale][trimmed]:english[trimmed];
+ let translated=translateMarket(trimmed,locale)??(locale==='ja'||locale==='ko'?localeMaps[locale][trimmed]:english[trimmed]);
  const rules=localePatterns[locale]??patterns;
  if(translated===undefined)for(const [pattern,replace] of rules){if(pattern.test(trimmed)){translated=trimmed.replace(pattern,replace);break;}}
  if(translated===undefined)return text;
