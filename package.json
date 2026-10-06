@@ -73,7 +73,7 @@
         }
       ],
       "icon": "desktop/icon.ico",
-      "signAndEditExecutable": false
+      "signExecutable": false
     },
     "portable": {
       "artifactName": "MetalLab-${version}-Windows-Portable-${arch}.${ext}"
