@@ -57,6 +57,7 @@
       "dist/金属工坊.html",
       "package.json"
     ],
+    "extraFiles": [{ "from": "desktop/icon.ico", "to": "MetalLab-brand.ico" }],
     "win": {
       "target": [
         {
@@ -79,6 +80,9 @@
       "artifactName": "MetalLab-${version}-Windows-Portable-${arch}.${ext}"
     },
     "nsis": {
+      "include": "desktop/installer-icons.nsh",
+      "installerIcon": "desktop/icon.ico",
+      "uninstallerIcon": "desktop/icon.ico",
       "artifactName": "MetalLab-${version}-Windows-Setup-${arch}.${ext}",
       "oneClick": false,
       "perMachine": false,
