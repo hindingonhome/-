@@ -10,6 +10,9 @@
   "scripts": {
     "test": "node --test tests/*.test.mjs",
     "build": "node build.mjs dist",
+    "build:lite": "node build.mjs dist && node scripts/build-lite.mjs",
+    "desktop:lite:dist": "pnpm build:lite && node scripts/prepare-lite-desktop.mjs && electron-builder --projectDir lite-desktop --win portable nsis --x64 --publish never",
+    "desktop:lite:linux": "pnpm build:lite && node scripts/prepare-lite-desktop.mjs && electron-builder --projectDir lite-desktop --linux tar.xz --x64 --publish never",
     "desktop:prepare": "node node_modules/electron/install.js",
     "desktop:dev": "pnpm build && pnpm desktop:prepare && electron .",
     "desktop:dist": "pnpm build && electron-builder --win portable nsis --publish never",

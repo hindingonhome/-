@@ -10,10 +10,12 @@
 
 在 [Releases 下载页](https://github.com/hindingonhome/-/releases)下载最新版本：
 
-- **Windows 免安装便携版**：下载 `MetalLab-*-Windows-Portable-x64.exe`，双击运行。
-- **Windows 安装版**：下载 `MetalLab-*-Windows-Setup-x64.exe`，按安装向导操作。
-- **Linux x64 便携版**：下载 `MetalLab-*-Linux-x64.tar.xz`，解压后运行其中的程序。首次运行前可核对 `SHA256SUMS-Linux.txt`。
-- **离线浏览版**：下载 `MetalLab-*-Offline.html`，使用 Chrome、Edge 等现代浏览器打开。同一个 HTML 会适配桌面和手机竖屏。
+**标准版与 Lite 独立更新：** [Standard V1.1.0](https://github.com/hindingonhome/-/releases/tag/V1.1.0) 提供分组、尺寸方案、几何导出和制作费用；[Lite v1.0.0](https://github.com/hindingonhome/-/releases/tag/Lite-V1.0.0) 提供浅色三语界面、示例模型、体积/克重、手动单价和基础记录整理。Lite 使用独立应用标识、数据目录和蓝色图标，可与标准版并存。详见 [Lite 使用说明](docs/LITE.md) 和 [Lite 更新日志](docs/LITE-CHANGELOG.md)。
+
+- **Windows 平台 ZIP**：解压后选择 Portable EXE 免安装运行，或使用 Setup EXE 安装。
+- **Linux x64 平台 ZIP**：解压内部 tar.xz 后运行程序；Linux 构建尚需实机验证。
+- **离线浏览版**：各平台 ZIP 内附 Offline.html，使用 Chrome、Edge 等现代浏览器打开。
+- 每个发布版本提供两份平台 ZIP 及 `SHA256SUMS.txt`；说明、日志、HTML、图标和许可放在包内，不散装上传。
 
 软件无需注册账号，核心计算在本机完成。默认联网获取金、银、铂、钯的参考行情：启动和每 5 分钟更新，可关闭自动更新或点击立即更新。行情源为 Gold API，汇率源为 Frankfurter / ECB；网络请求不包含模型及报价。采用最新参考价只修改当前记录，不自动覆盖手动报价。铜、铝、锡及合金等暂无自动行情，需填写采购报价。断网显示缓存及行情时间；过期数据禁止一键采用。详见 [行情说明](docs/ONLINE-MARKET.md)。Windows 安装程序目前没有商业代码签名证书；请只从本仓库的发布页下载，并核对发布附件中的 `SHA256SUMS.txt`。
 
@@ -70,4 +72,4 @@ STL 等网格的体积计算依赖模型封闭程度；边拓扑通过也不能�
 
 ## 2026-10-29 验收补充
 
-模型可拖入分组标题，F2或双击分组名称重命名；新建工作区在顶栏显示Ctrl+N。黄铜移入铜后的常用入口。免费废黄铜服务实测不可用，界面标注未接通，不提供虚构价格。Lite 版本单独开发与验收，本次发布仅包含标准版。
+标准版模型可拖入分组标题，F2或双击分组名称重命名；新建工作区在顶栏显示Ctrl+N。黄铜移入铜后的常用入口。免费废黄铜服务实测不可用，界面标注未接通，不提供虚构价格。Lite 采用独立 `Lite-V1.0.0` 标签和平台包，固定浅色、三种语言，计算记录上方可载入戒指及方块。Windows 7/8.1 不支持当前桌面运行时，备用 HTML 的旧系统兼容性也未验证。

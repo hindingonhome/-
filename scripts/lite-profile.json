@@ -1,0 +1,6 @@
+{
+  "version": "1.0.0",
+  "languages": ["zh-CN", "zh-TW", "en"],
+  "features": {"modelGroups": false, "advancedOptions": false},
+  "theme": "light"
+}

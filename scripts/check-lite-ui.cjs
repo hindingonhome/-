@@ -1,0 +1,78 @@
+const {chromium}=require(process.env.PLAYWRIGHT_MODULE || 'playwright');
+const assert=require('node:assert/strict');
+const path=require('node:path');
+const {pathToFileURL}=require('node:url');
+const fs=require('node:fs');
+(async()=>{
+ const out=path.resolve('delivery/lite-ui-check');fs.mkdirSync(out,{recursive:true});
+ const browser=await chromium.launch({channel:'msedge',headless:true,args:['--enable-unsafe-swiftshader']});
+ const page=await browser.newPage({viewport:{width:1280,height:900}}),errors=[];
+ await page.addInitScript(()=>{localStorage.setItem('metal-lab-language','ja');});
+ page.on('pageerror',e=>errors.push(e.message));
+ await page.route('https://**',route=>route.abort());
+ await page.goto(pathToFileURL(path.resolve('dist-lite/MetalLab-Lite-1.0.0-Review.html')).href);
+ await page.waitForTimeout(1500);
+ async function light(selector){const styles=await page.locator(selector).first().evaluate(el=>{const s=getComputedStyle(el);return {background:s.backgroundColor,color:s.color};});assert.notEqual(styles.background,'rgb(37, 38, 42)',selector);assert.notEqual(styles.background,'rgb(40, 42, 47)',selector);return styles;}
+ await page.locator('.tools-menu summary').click();
+ assert.deepEqual(await page.locator('#languageSelect option').evaluateAll(els=>els.map(el=>el.value)),['zh-CN','zh-TW','en']);
+ assert.equal(await page.locator('#liteTheme,#liteAdvanced,#liteModels').count(),0);
+ await page.locator('#versionInfoBtn').click();
+ await page.screenshot({path:path.join(out,'about.png')});
+ await light('#aboutDialog');
+ await page.locator('#aboutDialog [data-close]').first().click();
+ await page.locator('.tools-menu summary').click();await page.locator('#helpBtn').click();
+ await light('#helpDialog');assert.ok(await page.locator('#liteGuide').innerText());
+ await page.screenshot({path:path.join(out,'help.png')});await page.locator('#helpDialog [data-close]').first().click();
+ // Exercise the real imported calibration cube and switching, not just static CSS.
+ await page.locator('#cubeBtn').click();await page.waitForTimeout(500);
+ assert.equal(await page.locator('#mass').innerText(),'0.019');
+ await page.waitForTimeout(200);
+ await page.locator('#recordsPanel summary').first().click();
+ await light('.records-body');await light('#quoteConfidence');
+ await page.locator('[data-rename-record]').first().click();
+ assert.equal(await page.evaluate(()=>document.activeElement.id),'cardName');
+ await page.locator('#cardName').fill('Lite rename test');await page.locator('#cardName').dispatchEvent('change');
+ assert.equal(await page.locator('.card-top strong').first().innerText(),'Lite rename test');
+ await page.screenshot({path:path.join(out,'records.png'),fullPage:true});
+ await page.locator('#demoBtn').click();await page.waitForTimeout(700);
+ assert.equal(await page.locator('#liteModelSelect option').count(),2);
+ await page.locator('#liteModelSelect').selectOption({index:0});await page.waitForTimeout(200);
+ assert.equal(await page.locator('#mass').innerText(),'0.019');
+ await page.locator('#sheetBtn').click();await light('#sampleSheetDialog');await page.locator('#sampleSheetDialog [data-close]').first().click();
+ await page.locator('.scheme-compare summary').click();await light('.comparison-scroll th');await light('.comparison-scroll td');
+ await page.locator('#otherMetalsBtn').click();await light('#otherMetalsDialog');await page.locator('#otherMetalsDialog [data-close]').first().click();
+ await page.locator('#newWorkspaceBtn').click();await light('#newWorkspaceDialog');await page.locator('#newWorkspaceDialog [data-close]').first().click();
+ // Real file import must still require unit confirmation.
+ const cube=Buffer.alloc(84+4*50);cube.writeUInt32LE(4,80);
+ const vertices=[[[0,0,0],[0,1,0],[1,0,0]],[[0,0,0],[1,0,0],[0,0,1]],[[0,0,0],[0,0,1],[0,1,0]],[[1,0,0],[0,1,0],[0,0,1]]];
+ vertices.forEach((tri,i)=>tri.flat().forEach((n,j)=>cube.writeFloatLE(n,84+i*50+12+j*4)));
+ await page.locator('#fileInput').setInputFiles({name:'Lite-unit-test.stl',mimeType:'application/octet-stream',buffer:cube});
+ await page.locator('#unitDialog').waitFor({state:'visible'});await light('#unitDialog');await page.locator('#unitDialog button[value=confirm]').click();await page.waitForTimeout(300);assert.equal(await page.locator('#liteModelSelect option').count(),3);
+ await page.locator('.tools-menu summary').click();await page.locator('#manualBtn').click();await page.waitForTimeout(200);
+ await page.locator('#focusVolumeBtn').click();await page.locator('#volumeInput').fill('1');await page.locator('#volumeInput').dispatchEvent('change');await page.waitForTimeout(200);
+ assert.equal(Number(await page.locator('#mass').innerText()),19.3);
+ // Saving still exports a project, and all imported models remain switchable.
+ await page.locator('.tools-menu summary').click();const download=page.waitForEvent('download');await page.locator('#backupBtn').click();const saved=await download;assert.ok(saved.suggestedFilename().endsWith('.mlab'));const savedPath=path.join(out,'roundtrip.mlab');await saved.saveAs(savedPath);
+ const modelCount=await page.locator('#liteModelSelect option').count();
+ await page.locator('#newWorkspaceBtn').click();await page.locator('#discardNewBtn').click();await page.waitForTimeout(200);
+ assert.equal(await page.locator('#liteModelSelect option').count(),0);assert.equal(await page.locator('#cardCount').innerText(),'0');
+ await page.locator('#restoreInput').setInputFiles(savedPath);await page.waitForTimeout(400);
+ assert.equal(await page.locator('#liteModelSelect option').count(),modelCount);assert.equal(Number(await page.locator('#mass').innerText()),19.3);
+ await page.locator('#liteModelSelect').selectOption({index:0});await page.waitForTimeout(100);
+ assert.equal(await page.locator('.card-top strong').first().innerText(),'Lite rename test');assert.equal(await page.locator('#cardCount').innerText(),'1');
+ await page.locator('#liteModelSelect').selectOption({index:2});await page.waitForTimeout(100);
+ await page.locator('#liteRemoveModel').click();await light('#deleteModelDialog');await page.locator('#confirmDeleteModelBtn').click();await page.waitForTimeout(150);
+ assert.equal(await page.locator('#liteModelSelect option').count(),modelCount-1);
+ await page.locator('.tools-menu summary').click();await page.locator('#languageSelect').selectOption('en');await page.waitForTimeout(200);
+ await page.locator('#helpBtn').click();assert.match(await page.locator('#liteGuide').innerText(),/Lite user guide/);await page.locator('#helpDialog [data-close]').first().click();
+ await page.locator('.tools-menu summary').click();await page.locator('#languageSelect').selectOption('zh-TW');await page.waitForTimeout(200);assert.equal(await page.locator('html').getAttribute('lang'),'zh-TW');
+ await page.locator('#languageSelect').selectOption('zh-CN');await page.keyboard.press('Escape');
+ await page.locator('#liteModelSelect').selectOption({label:'电影戒指比例示例 · 7 mm 宽'});await page.waitForTimeout(200);
+ for(const width of [390,760,1280]){await page.setViewportSize({width,height:900});await page.waitForTimeout(100);assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'horizontal overflow '+width);await page.screenshot({path:path.join(out,'layout-'+width+'.png'),fullPage:true});}
+ const dark=await page.evaluate(()=>Array.from(document.querySelectorAll('button,select,dialog,.records-body,#quoteConfidence')).filter(el=>{const r=el.getBoundingClientRect(),s=getComputedStyle(el),m=s.backgroundColor.match(/^rgb\((\d+), (\d+), (\d+)\)$/);return r.width&&r.height&&s.visibility!=='hidden'&&m&&Math.max(...m.slice(1).map(Number))<130;}).map(el=>el.id||el.className));assert.deepEqual(dark,[]);
+ fs.writeFileSync(path.join(out,'result.json'),JSON.stringify({errors,checked:['about','help','records','quoteConfidence','sample sheet dialog','comparison table','other metals','confirm new workspace reset','real STL unit confirmation','manual volume 1cm3 = 19.300g','save and restore project roundtrip','record rename and per-model isolation','confirm model deletion','model switching','three languages','normalize previous Japanese setting','390/760/1280px','visible control backgrounds']},null,2));
+ assert.deepEqual(errors,[]);
+ await browser.close();console.log('Lite UI checks passed');
+})().catch(e=>{console.error(e);process.exit(1);});
+
+

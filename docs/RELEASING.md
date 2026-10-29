@@ -2,7 +2,7 @@
 
 ## V1.1.0 当前状态
 
-2026-10-29 标准版已由用户验收并明确授权上传。Lite版本仍独立本地验收，不能随标准版发布。
+2026-10-29 标准版 V1.1.0 已发布。用户授权 Lite 在完成本轮缺陷检查、生成最终本地验收包后独立发布；Lite 使用标签 Lite-V1.0.0，不替换标准版附件。
 
 ## 更新流程
 
@@ -29,3 +29,14 @@ V1.1.0 保留 .mlab 容器格式版本1，新增 groups、activeGroupId 和模�
 工作区预览预算512 MiB，单工程512 MiB；不是模型数量承诺。新建工作区须解除旧保存路径，串行完成自动保存写入。浏览器下载完成无法由程序可靠确认，需用户再次确认新建。
 
 Windows 未配置可信商业代码签名证书。参考行情和汇率模块不在此次更新中更改；采购报价不得被定时刷新覆盖。
+
+## Lite 更新流程
+
+1. 修改 Lite 专属脚本、样式、图标和说明；版本号统一在 scripts/lite-profile.json 维护（当前 v1.0.0）。同步 Lite 页面标题、说明、发布说明和版本窗口后回归检查。
+2. pnpm test；pnpm build:lite。浏览器操作检查与 Windows 打包程序检查脚本分别为 scripts/check-lite-ui.cjs 和 scripts/check-lite-desktop.cjs；本机路径需按实际 Playwright 环境调整。
+3. pnpm desktop:lite:dist 和 pnpm desktop:lite:linux，生成 lite-desktop/desktop-dist/。暂存工程、临时用户数据和打包文件均禁止提交源码。
+4. 执行 scripts/package-lite-release.ps1 -Platform Windows 和 -Platform Linux，将两行 SHA256 合并到同目录的 SHA256SUMS.txt。已有暂存目录时选择新 -Output。
+5. 提供 Final 本地 HTML 和平台包。发布授权后手动运行 Publish reviewed MetalLab Lite 工作流，确认 review_approved。只有手动启动会发布；普通推送不会发布。
+6. Lite 标签使用 Lite-V版本号，附件固定为 MetalLab-Lite-版本-Windows-x64.zip、MetalLab-Lite-版本-Linux-x64.zip 和 SHA256SUMS.txt。标准版的标签和附件保持不变。后续更新优先新标签，替换旧版本附件需明确替换授权。
+
+Lite 当前桌面运行时与标准版相同，简化的是界面及预览开销，并非旧系统运行时。Windows 7/8.1 不支持当前安装程序；HTML 兼容性未实机验证。Linux 目前为交叉构建。

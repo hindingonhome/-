@@ -1,0 +1,65 @@
+name: Publish reviewed MetalLab Lite
+on:
+  workflow_dispatch:
+    inputs:
+      review_approved:
+        description: User authorized publication after reviewing and checking Lite
+        type: boolean
+        required: true
+        default: false
+permissions:
+  contents: write
+concurrency:
+  group: metal-lab-lite-release
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+      - name: Verify authorization and unused Lite tag
+        shell: pwsh
+        env:
+          APPROVED: ${{ inputs.review_approved }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if ($env:APPROVED -ne 'true') { throw 'User publication authorization is required.' }
+          $version=(Get-Content scripts/lite-profile.json -Raw|ConvertFrom-Json).version
+          if ($version -notmatch '^\d+\.\d+\.\d+$') { throw 'Invalid Lite version' }
+          "LITE_TAG=Lite-V$version" >> $env:GITHUB_ENV
+          $releases=gh release list --repo $env:GITHUB_REPOSITORY --json tagName --limit 1000|ConvertFrom-Json
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot verify releases' }
+          if ($releases.tagName -contains "Lite-V$version") { throw 'Lite release exists; increment version or obtain replacement authorization.' }
+      - name: Check and build Lite only
+        shell: pwsh
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: |
+          pnpm install --frozen-lockfile
+          if ($LASTEXITCODE -ne 0) { throw 'Install failed' }
+          pnpm test
+          if ($LASTEXITCODE -ne 0) { throw 'Tests failed' }
+          pnpm desktop:lite:dist
+          if ($LASTEXITCODE -ne 0) { throw 'Windows build failed' }
+          pnpm desktop:lite:linux
+          if ($LASTEXITCODE -ne 0) { throw 'Linux build failed' }
+      - name: Publish grouped platform ZIP files
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $version=(Get-Content scripts/lite-profile.json -Raw|ConvertFrom-Json).version
+          $output="release-bundles/lite-$version"
+          $hashes=@()
+          foreach ($platform in @('Windows','Linux')) { $hashes+=(& ./scripts/package-lite-release.ps1 -Platform $platform -Output $output) }
+          [IO.File]::WriteAllLines((Join-Path $output 'SHA256SUMS.txt'),$hashes,[Text.UTF8Encoding]::new($false))
+          $files=@("$output/MetalLab-Lite-$version-Windows-x64.zip","$output/MetalLab-Lite-$version-Linux-x64.zip","$output/SHA256SUMS.txt")
+          gh release create $env:LITE_TAG @files --repo $env:GITHUB_REPOSITORY --title "MetalLab Lite v$version" --target $env:GITHUB_SHA --notes-file "docs/releases/Lite-V$version.md" --latest=false
+          if ($LASTEXITCODE -ne 0) { throw 'Publish failed' }

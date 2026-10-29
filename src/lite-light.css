@@ -1,0 +1,83 @@
+/* Lite-owned surface layer. Standard styles and engine stay intact. */
+body.metallab-lite {color-scheme:light;--bg:#edf0f3;--panel:#fff;--text:#26313c;--muted:#596674;--line:#ccd2d9;--accent:#1976c9;--deep:#f3f6f9;--green:#527e68}
+body.metallab-lite .comparisons,body.metallab-lite .records-body,body.metallab-lite .welcome-content,
+body.metallab-lite dialog,body.metallab-lite #aboutDialog,body.metallab-lite #helpDialog {
+ background:#fff!important;color:var(--text)!important;border-color:var(--line)!important;
+}
+body.metallab-lite .quote-confidence,body.metallab-lite #quoteConfidence,body.metallab-lite .warning,
+body.metallab-lite #viewportError,body.metallab-lite #toast {
+ background:#edf4fb!important;color:#3e5c76!important;border-color:#c4d7e8!important;
+}
+body.metallab-lite .result-pair strong,body.metallab-lite .price-result,body.metallab-lite .folded-key-value,
+body.metallab-lite .orig-tag,body.metallab-lite .card-top,body.metallab-lite .scheme-compare summary,
+body.metallab-lite dialog h2,body.metallab-lite dialog h3,body.metallab-lite dialog strong,
+body.metallab-lite .lite-about-heading strong,body.metallab-lite .tab {
+ color:#304f6a!important;
+}
+body.metallab-lite dialog p,body.metallab-lite dialog li,body.metallab-lite dialog small,
+body.metallab-lite .records-body>p,body.metallab-lite .card-detail,body.metallab-lite .card-mass small,
+body.metallab-lite .empty-record,body.metallab-lite .menu-note,body.metallab-lite .welcome-content p {
+ color:#526170!important;
+}
+body.metallab-lite .eyebrow,body.metallab-lite a,body.metallab-lite .text-btn {color:#1766a6!important}
+body.metallab-lite .count,body.metallab-lite #cardCount,body.metallab-lite .version,
+body.metallab-lite kbd {background:#e7edf3!important;color:#456078!important;border-color:#c5d0db!important}
+body.metallab-lite #quickControls {background:#f1f6fb!important;border-color:#cbdbe9!important}
+body.metallab-lite #quickControls strong,body.metallab-lite #quickControls small,
+body.metallab-lite .quick-control-grid span {color:#405a70!important}
+body.metallab-lite #quickControls kbd {background:#fff!important;color:#285c85!important;border-color:#c4d4e2!important}
+body.metallab-lite .comparison-scroll th {background:#eaf1f7!important;color:#385872!important}
+body.metallab-lite .comparison-scroll td {background:#fff!important;color:#354351!important}
+body.metallab-lite .comparison-scroll th,body.metallab-lite .comparison-scroll td,
+body.metallab-lite .scheme-compare,body.metallab-lite .sheet-option,
+body.metallab-lite .sheet-options,body.metallab-lite .desktop-recent {border-color:#d1dae3!important}
+body.metallab-lite .sheet-option small {color:#586c7e!important}
+body.metallab-lite .sheet-option:has(input:checked),body.metallab-lite .unit-option:has(input:checked),
+body.metallab-lite .other-metal-option:hover {background:#eaf3fc!important;border-color:#6da5d2!important}
+body.metallab-lite input {accent-color:#1976c9}
+body.metallab-lite #marketStats>div,body.metallab-lite #priceChart,
+body.metallab-lite #supplierFields,body.metallab-lite .dimensions label {background:#f1f5f9!important;border-color:#cbd6e0!important}
+body.metallab-lite #marketStats strong {color:#235f90!important}
+body.metallab-lite .other-metals-grid button,body.metallab-lite .recent-project,
+body.metallab-lite .card-actions button,body.metallab-lite .outline {
+ background:#f1f5f9!important;color:#35536c!important;border-color:#c7d3de!important;
+}
+body.metallab-lite button:hover,body.metallab-lite .tools-menu>summary:hover {background:#e1edf8!important;color:#175d94!important}
+body.metallab-lite button.primary:hover {background:#1267b3!important;color:#fff!important}
+body.metallab-lite button:focus-visible,body.metallab-lite summary:focus-visible {outline:2px solid #1976c9!important;outline-offset:2px}
+body.metallab-lite .separator {background:#c8d1da!important}
+body.metallab-lite dialog::backdrop {background:rgba(45,61,76,.24);backdrop-filter:none}
+body.metallab-lite #busy {background:rgba(237,240,243,.88)!important;color:#314c64!important}
+body.metallab-lite .spinner {border-color:#c6d6e5;border-top-color:#1976c9}
+body.metallab-lite #aboutDialog {overflow-y:auto!important;border-radius:10px}
+body.metallab-lite .welcome-close {color:#526170!important;border-color:transparent!important}
+body.metallab-lite #groupError,body.metallab-lite #newWorkspaceError {color:#9e3d38!important}
+body.metallab-lite #viewport {background:#dfe2e6!important}
+body.metallab-lite .orientation button {background:#f6f8fa!important;color:#3c566e!important;border-color:#c5d0db!important}
+body.metallab-lite .orientation select {background:#fff!important;color:#3c566e!important;border-color:#c5d0db!important}
+body.metallab-lite #meshBadge {color:#536777!important}
+body.metallab-lite .panel-chevron {color:#60798f!important}
+body.metallab-lite .volume-row {display:block!important}
+body.metallab-lite .volume-control,body.metallab-lite .volume-label {color:#405a70!important}
+body.metallab-lite .volume-label button {background:#f1f5f9!important;color:#526170!important}
+body.metallab-lite #volumeInput {color:#26313c!important;background:white!important}
+body.metallab-lite .property-body>.density-field,
+body.metallab-lite .property-body>.lite-price-field {display:flex!important}
+body.metallab-lite .property-body>#priceOrigin {display:block!important}
+body.metallab-lite .property-body>#cardName {display:block!important;width:100%;padding:8px 9px!important;border:1px solid #c7d3de!important;border-radius:7px!important;background:#fff!important;color:#304f6a!important}
+body.metallab-lite .lite-model-picker {display:flex;align-items:center;gap:8px;max-width:100%;padding:8px 14px;background:#f7f9fb;border-bottom:1px solid #d2dbe3}
+body.metallab-lite .lite-model-picker select {flex:1;min-width:0;max-width:100%;font-size:12px}
+body.metallab-lite .lite-model-picker button {flex:none;font-size:12px}
+body.metallab-lite .lite-model-picker[hidden] {display:none!important}
+body.metallab-lite #volumeHint {display:none}
+body.metallab-lite #noSelection,body.metallab-lite .view-caption small {color:#526170!important}
+body.metallab-lite input::placeholder {color:#697c8d;opacity:1}
+body.metallab-lite .lite-guide {line-height:1.8}
+body.metallab-lite .lite-guide h2 {margin-top:0}
+body.metallab-lite .lite-examples {display:flex;flex-wrap:wrap;gap:8px;padding:10px 16px;background:#f7f9fb;border-top:1px solid #d2dbe3}
+body.metallab-lite .lite-examples button {background:#fff!important;color:#315976!important;border:1px solid #c5d5e3!important;min-height:36px;font-size:12px;text-align:left}
+body.metallab-lite .lite-examples button:hover {background:#e9f2fb!important;border-color:#83acd0!important}
+@media(max-width:480px){body.metallab-lite .lite-examples {padding:9px 12px}body.metallab-lite .lite-examples button {flex:1 1 100%;font-size:12px}}
+body.metallab-lite .tools-menu #manualBtn {display:block!important}
+body.metallab-lite .brand .version {display:inline-block!important;font-size:10px;letter-spacing:0;margin-left:0}
+@media(max-width:760px){body.metallab-lite .topbar nav{display:flex!important;gap:6px}body.metallab-lite .topbar nav>button{width:auto}body.metallab-lite .lite-model-picker{flex-wrap:wrap}}

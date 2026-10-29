@@ -18,3 +18,5 @@ android/app/*.keystore
 release-bundles/
 
 dist-lite/
+lite-desktop/
+delivery/
