@@ -74,5 +74,3 @@ const fs=require('node:fs');
  assert.deepEqual(errors,[]);
  await browser.close();console.log('Lite UI checks passed');
 })().catch(e=>{console.error(e);process.exit(1);});
-
-
