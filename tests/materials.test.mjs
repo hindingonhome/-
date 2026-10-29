@@ -7,7 +7,8 @@ test('common casting metals have editable density presets without invented marke
  assert.equal(materials.tin.density,7.287);
  assert.ok(otherMetalKeys.includes('aluminum'));
  assert.ok(otherMetalKeys.includes('tin'));
- assert.ok(otherMetalKeys.includes('brass'));
+ assert.equal(materials.brass.symbol,'CuZn');
+ assert.ok(!otherMetalKeys.includes('brass')); // Promoted to the main selector.
  assert.ok(otherMetalKeys.includes('bronze'));
  assert.ok(otherMetalKeys.every(key=>Number.isFinite(materials[key].density)&&materials[key].density>0));
 });

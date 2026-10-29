@@ -6,7 +6,7 @@ import {setupOrientation} from './orientation.mjs';
 import {toCreasedNormals} from 'three/addons/utils/BufferGeometryUtils.js';
 import {nearestAxisFromDirection} from './view-axis.mjs';
 export function createViewer(host){
- const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setClearColor(0x303236);renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.5;host.appendChild(renderer.domElement);
+ const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});renderer.setPixelRatio(Math.min(devicePixelRatio,document.body.classList.contains('metallab-lite')?1:2));renderer.setClearColor(0x303236);renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.5;host.appendChild(renderer.domElement);
  const scene=new THREE.Scene();let camera=new THREE.PerspectiveCamera(36,1,.01,10000),orthographic=false;camera.position.set(31,22,36);
  const controls=new TrackballControls(camera,renderer.domElement);controls.rotateSpeed=1.05;controls.dynamicDampingFactor=.15;
  controls.mouseButtons.LEFT=-1;controls.mouseButtons.MIDDLE=THREE.MOUSE.ROTATE;controls.mouseButtons.RIGHT=-1;
@@ -61,6 +61,7 @@ export function createViewer(host){
   mesh.scale.set(...factors);material.color.set(color);if(mesh.isPoints)mesh.material.color.set(color);baseSize=model.analysis.dimensions;currentScale=factors;span=Math.max(...baseSize.map((v,i)=>v*factors[i]));
   scene.remove(grid);grid.geometry.dispose();(Array.isArray(grid.material)?grid.material:[grid.material]).forEach(m=>m.dispose());grid=new THREE.GridHelper(span*4,40,0x666972,0x41454b);grid.position.y=-baseSize[1]*factors[1]/2-span*.04;grid.visible=this.gridVisible!==false;scene.add(grid);
  },clear(){if(mesh){scene.remove(mesh);mesh.geometry.dispose();if(mesh.isPoints)mesh.material.dispose();mesh=null;}lastModel=null;lastPositions=null;},fit,
+ reset(){this.clear();baseSize=[20,20,20];currentScale=[1,1,1];span=25;if(orthographic)this.toggleProjection();grid.visible=false;this.gridVisible=false;this.setWire(false);fit();},
  toggleProjection(){orthographic=!orthographic;const old=camera;camera=orthographic?new THREE.OrthographicCamera(-1,1,1,-1,.01,10000):new THREE.PerspectiveCamera(36,old.aspect,.01,10000);camera.aspect=old.aspect;camera.position.copy(old.position);camera.up.copy(old.up);controls.object=camera;const direction=old.position.clone().sub(controls.target).normalize();const up=old.up.clone();fit();const distance=camera.position.length();camera.position.copy(direction.multiplyScalar(distance));camera.up.copy(up);controls.update();return orthographic;},
  setAxisView(axis){if(!orthographic)this.toggleProjection();fit(axis);const button=document.getElementById('projectionBtn');button.textContent='正交';button.setAttribute('aria-pressed','true');return axis;},
  snapOrthographic(){return this.setAxisView(nearestAxis());},

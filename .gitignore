@@ -14,3 +14,7 @@ android/app/*.keystore
 *.log
 *.tsbuildinfo
 .DS_Store
+# Local release staging, never commit packaged applications.
+release-bundles/
+
+dist-lite/

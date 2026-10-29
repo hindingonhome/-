@@ -1,22 +1,36 @@
-name: Rebuild existing release
+name: Rebuild reviewed platform ZIP release
 on:
   workflow_dispatch:
     inputs:
       tag:
-        description: Existing release tag to replace
+        description: Existing tag matching package.json
+        type: string
         required: true
-        default: V1.0.0
+        default: V1.1.0
+      review_approved:
+        description: User authorized replacement after acceptance
+        type: boolean
+        required: true
+        default: false
 permissions:
   contents: write
+concurrency:
+  group: metal-lab-release
+  cancel-in-progress: false
 jobs:
   rebuild:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [windows-latest, ubuntu-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Check approval and tag
+        shell: pwsh
+        env:
+          APPROVED: ${{ inputs.review_approved }}
+          REQUESTED_TAG: ${{ inputs.tag }}
+        run: |
+          if ($env:APPROVED -ne 'true') { throw 'User acceptance is required' }
+          $version=(Get-Content package.json -Raw|ConvertFrom-Json).version
+          if ($env:REQUESTED_TAG -ne "V$version") { throw 'Tag differs from package version' }
       - uses: pnpm/action-setup@v4
         with:
           version: 11.25.0
@@ -24,47 +38,28 @@ jobs:
         with:
           node-version: '24'
           cache: pnpm
-      - name: Validate and test
+      - name: Rebuild and package
         shell: pwsh
         env:
-          REQUESTED_TAG: ${{ inputs.tag }}
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
         run: |
-          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
-          if ($env:REQUESTED_TAG -ne "V$version") { throw 'Release tag does not match package version.' }
           pnpm install --frozen-lockfile
-          if ($LASTEXITCODE -ne 0) { throw 'Install failed.' }
+          if ($LASTEXITCODE -ne 0) { throw 'Install failed' }
           pnpm test
-          if ($LASTEXITCODE -ne 0) { throw 'Tests failed.' }
-      - name: Build Windows
-        if: runner.os == 'Windows'
-        run: pnpm desktop:dist
-      - name: Build Linux
-        if: runner.os == 'Linux'
-        run: pnpm desktop:linux
-      - name: Replace release assets
+          if ($LASTEXITCODE -ne 0) { throw 'Tests failed' }
+          pnpm desktop:dist
+          if ($LASTEXITCODE -ne 0) { throw 'Windows build failed' }
+          pnpm desktop:linux
+          if ($LASTEXITCODE -ne 0) { throw 'Linux build failed' }
+          $hashes=@()
+          foreach ($platform in @('Windows','Linux')) { $hashes+=(& ./scripts/package-release.ps1 -Platform $platform) }
+          [IO.File]::WriteAllLines((Join-Path (Get-Location) 'release-bundles/SHA256SUMS.txt'),$hashes,[Text.UTF8Encoding]::new($false))
+      - name: Replace reviewed ZIPs and checksum
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ inputs.tag }}
+          REQUESTED_TAG: ${{ inputs.tag }}
         run: |
-          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
-          $html = Get-Content 'dist/金属工坊.html' -Raw
-          if ($html -match '(?i)create\s+by\s+chamber') { throw 'Removed welcome credit remains in built application.' }
-          if ($env:RUNNER_OS -eq 'Windows') {
-            $offline = "dist/MetalLab-$version-Offline.html"
-            Copy-Item -LiteralPath 'dist/金属工坊.html' -Destination $offline
-            $files = @($offline,"desktop-dist/MetalLab-$version-Windows-Portable-x64.exe","desktop-dist/MetalLab-$version-Windows-Setup-x64.exe")
-            $checksum = 'SHA256SUMS.txt'
-          } else {
-            $files = @("desktop-dist/MetalLab-$version-Linux-x64.tar.xz")
-            $checksum = 'SHA256SUMS-Linux.txt'
-          }
-          $lines = foreach ($file in $files) {
-            if (-not (Test-Path -LiteralPath $file)) { throw "Missing release file: $file" }
-            $hash = (Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash.ToLowerInvariant()
-            "$hash  $([IO.Path]::GetFileName($file))"
-          }
-          [IO.File]::WriteAllText((Join-Path (Get-Location) $checksum),($lines -join "`n")+"`n",[Text.UTF8Encoding]::new($false))
-          $arguments = @('release','upload',$env:RELEASE_TAG,'--repo',$env:GITHUB_REPOSITORY,'--clobber') + $files + @($checksum)
-          & gh @arguments
-          if ($LASTEXITCODE -ne 0) { throw 'Asset upload failed.' }
+          $version=(Get-Content package.json -Raw|ConvertFrom-Json).version
+          gh release upload $env:REQUESTED_TAG "release-bundles/MetalLab-$version-Windows-x64.zip" "release-bundles/MetalLab-$version-Linux-x64.zip" 'release-bundles/SHA256SUMS.txt' --repo $env:GITHUB_REPOSITORY --clobber
+          if ($LASTEXITCODE -ne 0) { throw 'Upload failed' }

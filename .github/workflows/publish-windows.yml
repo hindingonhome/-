@@ -1,88 +1,64 @@
-name: Publish Windows release
-
+name: Publish reviewed Windows and Linux release
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
-
+    inputs:
+      review_approved:
+        description: User has accepted this version and authorized publication
+        type: boolean
+        required: true
+        default: false
 permissions:
   contents: write
-
 concurrency:
-  group: windows-release
+  group: metal-lab-release
   cancel-in-progress: false
-
 jobs:
   publish:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Determine release tag
-        id: version
+      - name: Verify acceptance and version
         shell: pwsh
         env:
+          APPROVED: ${{ inputs.review_approved }}
           GH_TOKEN: ${{ github.token }}
         run: |
-          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
-          if ($version -notmatch '^\d+\.\d+\.\d+$') { throw "Expected a three-part package version, got: $version" }
-          $tag = "V$version"
-          "tag=$tag" >> $env:GITHUB_OUTPUT
-          $releases = gh release list --repo $env:GITHUB_REPOSITORY --json tagName --limit 1000 | ConvertFrom-Json
-          if ($LASTEXITCODE -ne 0) { throw 'Could not list repository releases.' }
-          if ($releases | Where-Object { $_.tagName -eq $tag }) {
-            'exists=true' >> $env:GITHUB_OUTPUT
-            Write-Output "Release $tag already exists; bump package.json version to publish an update."
-          } else {
-            'exists=false' >> $env:GITHUB_OUTPUT
-          }
+          if ($env:APPROVED -ne 'true') { throw 'User acceptance is required before publishing.' }
+          $version=(Get-Content package.json -Raw|ConvertFrom-Json).version
+          if ($version -notmatch '^\d+\.\d+\.\d+$') { throw 'Invalid version' }
+          "RELEASE_TAG=V$version" >> $env:GITHUB_ENV
+          $releases=gh release list --repo $env:GITHUB_REPOSITORY --json tagName --limit 1000|ConvertFrom-Json
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot verify existing releases' }
+          if ($releases.tagName -contains "V$version") { throw 'Release already exists; use reviewed rebuild workflow' }
       - uses: pnpm/action-setup@v4
-        if: steps.version.outputs.exists == 'false'
         with:
           version: 11.25.0
       - uses: actions/setup-node@v4
-        if: steps.version.outputs.exists == 'false'
         with:
           node-version: '24'
           cache: pnpm
-      - name: Install and test
-        if: steps.version.outputs.exists == 'false'
-        run: |
-          pnpm install --frozen-lockfile
-          pnpm test
-      - name: Build portable app, installer, and HTML
-        if: steps.version.outputs.exists == 'false'
+      - name: Install, test and build both platforms
+        shell: pwsh
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: 'false'
-        run: pnpm desktop:dist
-      - name: Publish release
-        if: steps.version.outputs.exists == 'false'
+        run: |
+          pnpm install --frozen-lockfile
+          if ($LASTEXITCODE -ne 0) { throw 'Install failed' }
+          pnpm test
+          if ($LASTEXITCODE -ne 0) { throw 'Tests failed' }
+          pnpm desktop:dist
+          if ($LASTEXITCODE -ne 0) { throw 'Windows build failed' }
+          pnpm desktop:linux
+          if ($LASTEXITCODE -ne 0) { throw 'Linux build failed' }
+      - name: Bundle and publish platform ZIP files
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ steps.version.outputs.tag }}
         run: |
-          $files = @(
-            'dist/金属工坊.html',
-            'desktop-dist/MetalLab-1.0.0-Windows-Portable-x64.exe',
-            'desktop-dist/MetalLab-1.0.0-Windows-Setup-x64.exe'
-          )
-          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
-          $files[1] = "desktop-dist/MetalLab-$version-Windows-Portable-x64.exe"
-          $files[2] = "desktop-dist/MetalLab-$version-Windows-Setup-x64.exe"
-          foreach ($file in $files) { if (-not (Test-Path -LiteralPath $file)) { throw "Missing release file: $file" } }
-          $hashes = foreach ($file in $files) {
-            $hash = (Get-FileHash -Algorithm SHA256 -LiteralPath $file).Hash.ToLowerInvariant()
-            $name = if ($file -eq $files[0]) { "MetalLab-$version-Offline.html" } else { [System.IO.Path]::GetFileName($file) }
-            "$hash  $name"
-          }
-          [System.IO.File]::WriteAllText((Join-Path (Get-Location) 'SHA256SUMS.txt'),(($hashes -join "`n")+"`n"),[System.Text.UTF8Encoding]::new($false))
-          $arguments = @('release','create',$env:RELEASE_TAG,'--repo',$env:GITHUB_REPOSITORY,'--title',$env:RELEASE_TAG,'--target',$env:GITHUB_SHA)
-          if ($env:RELEASE_TAG -eq 'V1.0.0') {
-            $arguments += @('--notes-file','docs/releases/V1.0.0.md')
-          } else {
-            $arguments += '--generate-notes'
-          }
-          $arguments += @("$($files[0])#MetalLab-$version-Offline.html", $files[1], $files[2])
-          $arguments += 'SHA256SUMS.txt'
-          & gh @arguments
-          if ($LASTEXITCODE -ne 0) { throw 'GitHub release creation failed' }
+          $hashes=@()
+          foreach ($platform in @('Windows','Linux')) { $hashes+=(& ./scripts/package-release.ps1 -Platform $platform) }
+          [IO.File]::WriteAllLines((Join-Path (Get-Location) 'release-bundles/SHA256SUMS.txt'),$hashes,[Text.UTF8Encoding]::new($false))
+          $version=(Get-Content package.json -Raw|ConvertFrom-Json).version
+          $files=@("release-bundles/MetalLab-$version-Windows-x64.zip","release-bundles/MetalLab-$version-Linux-x64.zip",'release-bundles/SHA256SUMS.txt')
+          gh release create $env:RELEASE_TAG @files --repo $env:GITHUB_REPOSITORY --title $env:RELEASE_TAG --target $env:GITHUB_SHA --notes-file "docs/releases/$($env:RELEASE_TAG).md"
+          if ($LASTEXITCODE -ne 0) { throw 'Publish failed' }

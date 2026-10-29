@@ -18,4 +18,4 @@ export const materials=Object.freeze({
  nickel:{name:'镍',symbol:'Ni',density:8.9,color:'#b7bdbd'},
  custom:{name:'自定义',symbol:'M',density:10,color:'#b6b8c4'}
 });
-export const otherMetalKeys=Object.freeze(['aluminum','tin','zinc','brass','bronze','castIron','stainless','titanium','platinum','palladium','iron','nickel']);
+export const otherMetalKeys=Object.freeze(['aluminum','tin','zinc','bronze','castIron','stainless','titanium','platinum','palladium','iron','nickel']);
