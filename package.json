@@ -1,6 +1,6 @@
 {
   "name": "metal-lab-desktop",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "packageManager": "pnpm@11.25.0",
   "private": true,
   "type": "module",
@@ -10,6 +10,7 @@
   "scripts": {
     "test": "node --test tests/*.test.mjs",
     "build": "node build.mjs dist",
+    "build:lite": "node build.mjs dist && node scripts/build-lite.mjs",
     "desktop:prepare": "node node_modules/electron/install.js",
     "desktop:dev": "pnpm build && pnpm desktop:prepare && electron .",
     "desktop:dist": "pnpm build && electron-builder --win portable nsis --publish never",

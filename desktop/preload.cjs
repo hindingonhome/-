@@ -1,5 +1,6 @@
 const {contextBridge,ipcRenderer}=require('electron');
 contextBridge.exposeInMainWorld('metalLabDesktop',Object.freeze({
+ newWorkspace:()=>ipcRenderer.invoke('desktop-new-workspace'),
  recentProjects:()=>ipcRenderer.invoke('desktop-recent-projects'),
  startupProject:()=>ipcRenderer.invoke('desktop-startup-project'),
  openProject:()=>ipcRenderer.invoke('desktop-open-project'),

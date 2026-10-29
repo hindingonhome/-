@@ -1,0 +1,3 @@
+import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';
+test('group drag targets are escaped and internal drops do not become file imports',()=>{const s=fs.readFileSync(new URL('../src/app.mjs',import.meta.url),'utf8');assert.match(s,/data-group-drop/);assert.match(s,/application\/x-metal-lab-model/);assert.match(s,/key==='F2'/);assert.match(s,/dataTransfer\.files\.length/);});
+test('new workspace is a visible toolbar action and brass follows copper',()=>{const s=fs.readFileSync(new URL('../src/index.html',import.meta.url),'utf8');assert.ok(s.indexOf('id="newWorkspaceBtn"')<s.indexOf('class="tools-menu"'));assert.match(s,/data-metal="copper"[\s\S]*?data-metal="brass"[\s\S]*?id="otherMetalsBtn"/);});

@@ -1,4 +1,5 @@
 import OpenCC from 'opencc-js';
+import {translateWorkspace} from './workspace-copy.mjs';
 import {translateMarket} from './market-copy.mjs';
 import {localeMaps,localePatterns} from './i18n-ja-ko.mjs';
 
@@ -157,7 +158,7 @@ export function translateText(value,locale){
  if(locale==='zh-TW')return toTraditional(value);
  const text=String(value),trimmed=text.trim();
  if(!trimmed)return text;
- let translated=translateMarket(trimmed,locale)??(locale==='ja'||locale==='ko'?localeMaps[locale][trimmed]:english[trimmed]);
+ let translated=translateWorkspace(trimmed,locale)??translateMarket(trimmed,locale)??(locale==='ja'||locale==='ko'?localeMaps[locale][trimmed]:english[trimmed]);
  const rules=localePatterns[locale]??patterns;
  if(translated===undefined)for(const [pattern,replace] of rules){if(pattern.test(trimmed)){translated=trimmed.replace(pattern,replace);break;}}
  if(translated===undefined)return text;
@@ -174,6 +175,7 @@ export function initLanguage(){
    const output=translateText(source,locale);originalText.set(node,{source,output});if(node.nodeValue!==output)node.nodeValue=output;return;
   }
   if(node.nodeType!==Node.ELEMENT_NODE)return;
+  if(node.hasAttribute('data-user-text'))return;
   let attrs=originalAttrs.get(node);if(!attrs){attrs=new Map();originalAttrs.set(node,attrs);}
   for(const key of ['title','placeholder','aria-label','alt'])if(node.hasAttribute(key)){
    const value=node.getAttribute(key),cached=attrs.get(key),source=cached&&value===cached.output?cached.source:value,output=translateText(source,locale);

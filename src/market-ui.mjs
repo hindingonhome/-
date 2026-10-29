@@ -7,12 +7,14 @@ export function initMarketUI({selected,apply,translate,currency,format,canRepain
  function applyFx(){if(pendingFx&&canRepaint())try{setCurrencySnapshot(pendingFx);pendingFx=null;repaint();}catch{pendingFx=null;}}
  function update(){
   const c=selected(),snapshot=client.snapshot,q=c?snapshot.quotes[c.metal]:null,supported=!!c&&Object.hasOwn(MARKET_SYMBOLS,c.metal),fx=getCurrencySnapshot();
-  $('marketAuto').checked=enabled;$('marketRefreshBtn').disabled=updating||!navigator.onLine;
+  $('brassSettings').hidden=c?.metal!=='brass';$('marketAuto').checked=enabled;$('marketRefreshBtn').disabled=updating||!navigator.onLine;
   $('referencePrice').textContent=q?`${format(toDisplayCurrency(q.priceCny,currency()),4)} ${currency()} / g`:'—';
   $('referenceTime').textContent=q?new Date(q.updatedAt).toLocaleString(document.documentElement.lang):'—';
   $('referenceSource').textContent=q?`${q.source} · ${q.symbol} · USD/toz → CNY/g`:'Gold API';$('referenceFxDate').textContent=q?.fxDate??'—';
+  if(c?.metal==='brass'){$('referenceSource').textContent='ScrapMetal API · HONEY · daily';$('referenceStatus').textContent=translate('免费废黄铜数据源暂不可用；需要免费 Key，当前没有接通行情。');}
   const problem=snapshot.errors.includes(c?.metal)||snapshot.errors.includes('fx');
   $('referenceStatus').textContent=translate(updating?'正在更新参考行情…':!supported?'暂无自动行情，请填写采购报价。':problem?'本次更新失败，保留上次数据。':!q?'尚未取得参考行情。':!usableReference(q)?'行情已过期或汇率不可用，请更新后再采用。':snapshot.cached?'数据来自缓存，请核对行情时间。':'已获取参考行情，仅供估算。');
+  if(c?.metal==='brass')$('referenceStatus').textContent=translate('免费废黄铜数据源暂不可用；需要免费 Key，当前没有接通行情。');
   $('useLivePriceBtn').disabled=!supported||!usableReference(q)||updating;$('manualQuoteBtn').disabled=!c;
   $('currencyRateHint').replaceChildren();for(const text of [translate(fx.source==='ECB'?'内置汇率快照':'每日参考汇率'),fx.date,fx.source,translate(pendingFx?'正在编辑或导出，汇率稍后应用。':snapshot.errors.includes('fx')?'汇率更新失败，保留已有汇率。':'参考汇率仅用于估算，不是实时成交汇率。')]){
    const span=document.createElement('span');span.textContent=text;$('currencyRateHint').append(span,document.createElement('br'));

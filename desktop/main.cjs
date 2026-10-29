@@ -6,7 +6,7 @@ if(!app.isPackaged&&process.env.METAL_LAB_TEST_USER_DATA){require('node:fs').mkd
 
 const htmlPath = path.join(__dirname, '..', 'dist', '金属工坊.html');
 const appUrl = 'metal-lab://app/index.html';
-const externalHosts = new Set(['sge.com.cn', 'shfe.com.cn']);
+const externalHosts = new Set(['sge.com.cn', 'shfe.com.cn', 'scrapmetalapi.com']);
 let mainWindow;
 let currentProjectPath=null;
 let pendingProjectPath=process.argv.find(isProjectPath)||null;
@@ -91,6 +91,7 @@ else {
     ipcMain.handle('desktop-startup-project',async()=>{const file=pendingProjectPath;pendingProjectPath=null;return file?readProjectFile(file):null;});
     ipcMain.handle('desktop-open-project',()=>openProjectDialog());
     ipcMain.handle('desktop-open-recent',async(_event,file)=>{if(!(await recentPaths()).includes(file))throw Error('最近文件已不可用');return readProjectFile(file);});
+    ipcMain.handle('desktop-new-workspace',()=>{currentProjectPath=null;pendingProjectPath=null;return true;});
     ipcMain.handle('desktop-save-project',(_event,contents)=>saveProject(contents));
     ipcMain.handle('desktop-save-project-as',(_event,contents)=>saveProject(contents,true));
     protocol.handle('metal-lab', async request => {
@@ -100,7 +101,7 @@ else {
       const html = await fs.readFile(htmlPath);
       return new Response(html, {headers: {
         'content-type': 'text/html; charset=utf-8',
-        'content-security-policy': "default-src 'none'; script-src 'self' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline'; worker-src blob:; img-src 'self' data: blob:; connect-src 'self' blob: https://api.gold-api.com https://api.frankfurter.dev; font-src 'self' data:; base-uri 'none'; object-src 'none'; form-action 'none'"
+        'content-security-policy': "default-src 'none'; script-src 'self' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline'; worker-src blob:; img-src 'self' data: blob:; connect-src 'self' blob: https://api.gold-api.com https://api.frankfurter.dev https://scrap-api-jtk5.onrender.com; font-src 'self' data:; base-uri 'none'; object-src 'none'; form-action 'none'"
       }});
     });
     session.defaultSession.on('will-download', (_event, item, contents) => {
