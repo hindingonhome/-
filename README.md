@@ -8,6 +8,8 @@
 
 ## 下载与运行
 
+**iPhone 免安装网页预览：** Safari 打开 [MetalLab Lite 网页](https://hindingonhome.github.io/-/)，使用手机专用“模型 / 估算 / 记录”界面。可从“文件”导入模型及保存 .mlab；可选添加到主屏幕。真实 iPhone 和旧 iOS 尚需实机验收，详情见 [iPhone 使用说明](docs/IPHONE.md)。
+
 在 [Releases 下载页](https://github.com/hindingonhome/-/releases)下载最新版本：
 
 **标准版与 Lite 独立更新：** [Standard V1.1.0](https://github.com/hindingonhome/-/releases/tag/V1.1.0) 提供分组、尺寸方案、几何导出和制作费用；[Lite v1.0.0](https://github.com/hindingonhome/-/releases/tag/Lite-V1.0.0) 提供浅色三语界面、示例模型、体积/克重、手动单价和基础记录整理。Lite 使用独立应用标识、数据目录和蓝色图标，可与标准版并存。详见 [Lite 使用说明](docs/LITE.md) 和 [Lite 更新日志](docs/LITE-CHANGELOG.md)。

@@ -11,6 +11,7 @@
     "test": "node --test tests/*.test.mjs",
     "build": "node build.mjs dist",
     "build:lite": "node build.mjs dist && node scripts/build-lite.mjs",
+    "build:lite:web": "node build.mjs dist-web-base && node scripts/build-lite.mjs dist-web-lite dist-web-base/金属工坊.html && node scripts/build-lite-web.mjs",
     "desktop:lite:dist": "pnpm build:lite && node scripts/prepare-lite-desktop.mjs && electron-builder --projectDir lite-desktop --win portable nsis --x64 --publish never",
     "desktop:lite:linux": "pnpm build:lite && node scripts/prepare-lite-desktop.mjs && electron-builder --projectDir lite-desktop --linux tar.xz --x64 --publish never",
     "desktop:prepare": "node node_modules/electron/install.js",

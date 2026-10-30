@@ -10,7 +10,7 @@ const fs=require('node:fs');
  await page.addInitScript(()=>{localStorage.setItem('metal-lab-language','ja');});
  page.on('pageerror',e=>errors.push(e.message));
  await page.route('https://**',route=>route.abort());
- await page.goto(pathToFileURL(path.resolve('dist-lite/MetalLab-Lite-1.0.0-Review.html')).href);
+ await page.goto(pathToFileURL(path.resolve(process.env.LITE_HTML||'dist-lite/MetalLab-Lite-1.0.0-Review.html')).href);
  await page.waitForTimeout(1500);
  async function light(selector){const styles=await page.locator(selector).first().evaluate(el=>{const s=getComputedStyle(el);return {background:s.backgroundColor,color:s.color};});assert.notEqual(styles.background,'rgb(37, 38, 42)',selector);assert.notEqual(styles.background,'rgb(40, 42, 47)',selector);return styles;}
  await page.locator('.tools-menu summary').click();
@@ -26,6 +26,8 @@ const fs=require('node:fs');
  // Exercise the real imported calibration cube and switching, not just static CSS.
  await page.locator('#cubeBtn').click();await page.waitForTimeout(500);
  assert.equal(await page.locator('#mass').innerText(),'0.019');
+ assert.equal(await page.locator('#volumeLock').getAttribute('data-lite-locked'),'true');
+ assert.equal(await page.locator('#volumeLock').evaluate(el=>getComputedStyle(el,'::after').backgroundColor),'rgb(40, 121, 187)');
  await page.waitForTimeout(200);
  await page.locator('#recordsPanel summary').first().click();
  await light('.records-body');await light('#quoteConfidence');
@@ -51,6 +53,10 @@ const fs=require('node:fs');
  await page.locator('.tools-menu summary').click();await page.locator('#manualBtn').click();await page.waitForTimeout(200);
  await page.locator('#focusVolumeBtn').click();await page.locator('#volumeInput').fill('1');await page.locator('#volumeInput').dispatchEvent('change');await page.waitForTimeout(200);
  assert.equal(Number(await page.locator('#mass').innerText()),19.3);
+ assert.equal(await page.locator('#volumeLock').getAttribute('data-lite-locked'),'false');
+ await page.locator('#volumeInput').evaluate(el=>el.blur());await page.waitForTimeout(100);
+ await page.locator('#volumeLock').click();assert.equal(await page.locator('#volumeInput').isDisabled(),true);await page.locator('#volumeLock').click();
+ await page.locator('#volumeInput').fill('2');await page.locator('#volumeLock').click();assert.equal(await page.locator('#volumeInput').isDisabled(),true);await page.locator('#volumeLock').click();await page.locator('#volumeInput').fill('1');await page.locator('#volumeInput').evaluate(el=>el.blur());
  // Saving still exports a project, and all imported models remain switchable.
  await page.locator('.tools-menu summary').click();const download=page.waitForEvent('download');await page.locator('#backupBtn').click();const saved=await download;assert.ok(saved.suggestedFilename().endsWith('.mlab'));const savedPath=path.join(out,'roundtrip.mlab');await saved.saveAs(savedPath);
  const modelCount=await page.locator('#liteModelSelect option').count();

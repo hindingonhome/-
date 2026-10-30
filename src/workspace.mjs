@@ -1,3 +1,4 @@
+import {isLiteTouchDevice,phoneMessage} from './phone-policy.mjs';
 export const WORKSPACE_GEOMETRY_BUDGET=512*1024*1024;
 export function emptyWorkspace(){return {version:1,models:[],cards:[],selected:null,histories:{},groups:[],activeGroupId:null};}
 function groupName(name){if(typeof name!=='string'||!name.trim()||name.trim().length>80)throw Error('分组名称须为 1 至 80 个字符');return name.trim();}
@@ -6,6 +7,6 @@ export function createGroup(state,name,id=crypto.randomUUID()){name=groupName(na
 export function renameGroup(state,id,name){name=groupName(name);const group=state.groups.find(g=>g.id===id);if(!group)throw Error('分组不存在');if(state.groups.some(g=>g.id!==id&&g.name===name))throw Error('分组名称已存在');group.name=name;}
 export function removeGroup(state,id){if(state.models.some(m=>m.groupId===id))throw Error('请先移出分组中的模型');state.groups=state.groups.filter(g=>g.id!==id);if(state.activeGroupId===id)state.activeGroupId=null;}
 export function moveModel(state,id,groupId){const model=state.models.find(m=>m.id===id);if(!model)throw Error('模型不存在');if(groupId!==null&&!state.groups.some(g=>g.id===groupId))throw Error('分组不存在');model.groupId=groupId;}
-export function assertWorkspaceBudget(state,extraPositions=0){const bytes=state.models.reduce((sum,m)=>sum+(m.positions?.length??0)*8,extraPositions*8)+(state.cards?.length??0)*2048;if(bytes>WORKSPACE_GEOMETRY_BUDGET)throw Error('工作区预览数据超过 512 MiB，请保存工程并新建工作区');return bytes;}
+export function assertWorkspaceBudget(state,extraPositions=0){const bytes=state.models.reduce((sum,m)=>sum+(m.positions?.length??0)*8,extraPositions*8)+(state.cards?.length??0)*2048;const phone=isLiteTouchDevice();if(bytes>(phone?128*1024*1024:WORKSPACE_GEOMETRY_BUDGET))throw Error(phone?phoneMessage('workspace'):'工作区预览数据超过 512 MiB，请保存工程并新建工作区');return bytes;}
 export function recordsForModel(state,modelId){return modelId?state.cards.filter(c=>c.modelId===modelId):[];}
 export function moveRecord(state,id,direction){const card=state.cards.find(c=>c.id===id);if(!card||![-1,1].includes(direction))return;const records=recordsForModel(state,card.modelId),index=records.indexOf(card),other=records[index+direction];if(!other)return;const a=state.cards.indexOf(card),b=state.cards.indexOf(other);[state.cards[a],state.cards[b]]=[state.cards[b],state.cards[a]];}

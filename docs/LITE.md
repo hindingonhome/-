@@ -4,6 +4,8 @@
 
 ## 下载与运行
 
+iPhone 可直接使用 [免安装网页预览](https://hindingonhome.github.io/-/)，无需运行本页的 Windows/Linux 安装程序。手机布局、文件保存和验证范围见 [iPhone 使用说明](IPHONE.md)。
+
 发布页：[Lite v1.0.0](https://github.com/hindingonhome/-/releases/tag/Lite-V1.0.0)。附件按平台提供 ZIP；先解压，再运行其中的应用或备用 HTML。
 
 - Windows x64 ZIP：包含 Portable 免安装 EXE、Setup 安装程序和 Offline.html。当前桌面程序面向 Windows 10/11 x64，未配置商业代码签名证书。核对 SHA256SUMS.txt，并从本仓库下载。

@@ -1,0 +1,17 @@
+import fs from 'node:fs/promises';import {createHash} from 'node:crypto';
+const out=process.argv[2]||'site-lite';await fs.mkdir(out+'/icons',{recursive:true});
+let html=await fs.readFile('dist-web-lite/MetalLab-Lite-1.0.0-Review.html','utf8');
+const css=await fs.readFile('src/lite-phone.css','utf8'),js=await fs.readFile('src/lite-phone.js','utf8');
+html=html.replace('class="lightweight metallab-lite"','class="lightweight metallab-lite metallab-web"').replace('width=device-width,initial-scale=1','width=device-width,initial-scale=1,viewport-fit=cover');
+html=html.replace('</head>','<link rel="manifest" href="./manifest.webmanifest"><link rel="apple-touch-icon" href="./icons/lite-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="MetalLab Lite"></head>');
+html=html.replace('</style>',css+'</style>').replace('<div class="lite-examples"','<p id="phoneGestureHint" class="phone-gesture-hint" data-user-text></p><div class="lite-examples"');
+const tabs='<nav class="lite-phone-tabs" role="tablist" aria-label="MetalLab Lite"><button role="tab" data-phone-pane="model" aria-controls="viewport" aria-selected="true"><span data-phone-label data-user-text>模型</span></button><button role="tab" data-phone-pane="estimate" aria-controls="propertiesBody" aria-selected="false"><span data-phone-label data-user-text>估算</span><small id="phoneMass" data-user-text></small></button><button role="tab" data-phone-pane="records" aria-controls="recordsPanel" aria-selected="false"><span data-phone-label data-user-text>记录</span></button></nav>';
+html=html.replace('</header>','</header>'+tabs);
+// Run before shared startup; all DOM targets have already been parsed.
+html=html.replace('<script data-lite-profile>','<script>'+js+'</script><script data-lite-profile>');
+const revision=createHash('sha256').update(html).digest('hex').slice(0,12),cache='metallab-lite-web-'+revision;
+await fs.writeFile(out+'/index.html',html);
+await fs.writeFile(out+'/manifest.webmanifest',JSON.stringify({name:'MetalLab Lite',short_name:'MetalLab Lite',start_url:'./',scope:'./',display:'standalone',background_color:'#edf0f3',theme_color:'#1976c9',icons:[{src:'icons/lite-192.png',sizes:'192x192',type:'image/png'},{src:'icons/lite-512.png',sizes:'512x512',type:'image/png'}]},null,2));
+for(const size of [180,192,512])await fs.copyFile('src/assets/lite-icon-'+size+'.png',out+'/icons/lite-'+size+'.png');
+await fs.writeFile(out+'/sw.js',`const CACHE=${JSON.stringify(cache)};const FILES=['./','./index.html','./manifest.webmanifest','./icons/lite-180.png','./icons/lite-192.png','./icons/lite-512.png'];self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(FILES))));self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key.startsWith('metallab-lite-web-')&&key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));self.addEventListener('fetch',event=>{const url=new URL(event.request.url);if(event.request.method!=='GET'||url.origin!==self.location.origin||!url.pathname.startsWith(new URL(self.registration.scope).pathname))return;if(event.request.mode==='navigate')event.respondWith(fetch(event.request).catch(()=>caches.match('./index.html')));else event.respondWith(caches.match(event.request).then(cached=>cached||fetch(event.request)));});\n`);
+await fs.writeFile(out+'/.nojekyll','');console.log('Built phone website:',out,'revision',revision);

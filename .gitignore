@@ -20,3 +20,6 @@ release-bundles/
 dist-lite/
 lite-desktop/
 delivery/
+dist-web-base/
+dist-web-lite/
+site-lite/

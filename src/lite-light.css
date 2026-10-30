@@ -60,6 +60,19 @@ body.metallab-lite .panel-chevron {color:#60798f!important}
 body.metallab-lite .volume-row {display:block!important}
 body.metallab-lite .volume-control,body.metallab-lite .volume-label {color:#405a70!important}
 body.metallab-lite .volume-label button {background:#f1f5f9!important;color:#526170!important}
+body.metallab-lite .volume-label #volumeLock {display:inline-flex;align-items:center;gap:5px;padding:6px 9px;font-size:0!important;line-height:1.3;background:#edf5fd!important;color:#286b9e!important;border:1px solid #d3e3f1!important;opacity:1!important}
+body.metallab-lite #volumeLock::before {content:attr(data-lite-label);font-size:11px}
+body.metallab-lite #volumeLock::before,body.metallab-lite #volumeLock::after {pointer-events:none}
+body.metallab-lite #volumeLock::after {content:'';display:block;width:14px;height:14px;background:#2879bb;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='10' width='14' height='11' rx='2'/%3E%3Cpath d='M8 10V7a4 4 0 0 1 8 0v3M12 14v3'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='10' width='14' height='11' rx='2'/%3E%3Cpath d='M8 10V7a4 4 0 0 1 8 0v3M12 14v3'/%3E%3C/svg%3E") center/contain no-repeat}
+body.metallab-lite #volumeLock[data-lite-locked=false]::after {-webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='10' width='14' height='11' rx='2'/%3E%3Cpath d='M8 10V7a4 4 0 0 1 7-2M12 14v3'/%3E%3C/svg%3E");mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='10' width='14' height='11' rx='2'/%3E%3Cpath d='M8 10V7a4 4 0 0 1 7-2M12 14v3'/%3E%3C/svg%3E")}
+body.metallab-lite dialog .dialog-top>button {color:#47718f!important;background:transparent!important;opacity:1}
+body.metallab-lite dialog .dialog-top>button:hover,body.metallab-lite .welcome-close:hover {color:#1766a6!important;background:#edf5fd!important}
+body.metallab-lite .busy-card {background:#fff!important;color:#304f6a!important;border-color:#cbd6e0!important}
+body.metallab-lite .busy-card p {color:#526170!important}
+body.metallab-lite .busy-card progress {accent-color:#1976c9}
+body.metallab-lite .other-metals-grid strong,body.metallab-lite .reference-market>strong {color:#2f668f!important}
+body.metallab-lite,body.metallab-lite * {scrollbar-color:#b6c8d9 #f5f8fb}
+body.metallab-lite ::-webkit-scrollbar-thumb {background:#b6c8d9}
 body.metallab-lite #volumeInput {color:#26313c!important;background:white!important}
 body.metallab-lite .property-body>.density-field,
 body.metallab-lite .property-body>.lite-price-field {display:flex!important}

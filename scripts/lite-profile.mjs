@@ -59,6 +59,9 @@ export async function applyLiteProfile(html){
  select.addEventListener('change',function(){setTimeout(updateGuide,0);});
  window.addEventListener('load',function(){updateGuide();['recordsPanel','costPanel','sizeDetails','exportDetails'].forEach(function(id){var el=document.getElementById(id);if(el)el.open=false;});});
  updateGuide();
+ var volumeLock=document.getElementById('volumeLock'),volumeField=document.getElementById('volumeInput');
+ function updateLock(){var lang=select.value||'zh-CN',locked=volumeField.disabled;volumeLock.dataset.liteLocked=String(locked);volumeLock.dataset.liteLabel=lang==='en'?(locked?'Locked':'Unlocked'):lang==='zh-TW'?(locked?'鎖定':'已解鎖'):(locked?'锁定':'已解锁');}
+ new MutationObserver(updateLock).observe(volumeField,{attributes:true,attributeFilter:['disabled']});select.addEventListener('change',function(){setTimeout(updateLock,0);});updateLock();
  })();</script>`;
  // Place Lite bootstrap before shared code so preference normalization takes effect.
  html=html.replace('<script>',boot+'<script>');
