@@ -4,7 +4,7 @@
 
 **开发者：CHAMBER** · 联系邮箱：[97101yy@gmail.com](mailto:97101yy@gmail.com)
 
-> V1.1.0 标准版已验收，发布附件按平台提供。模型重量和价格均为估算，正式投料与报价应由工坊核对模型、损耗、工艺和实际行情。
+> 当前小体积 Windows 发行版：标准版 V1.2.0 / Lite V1.1.0。复用系统 WebView2，应用 ZIP 约1.2 MB；运行环境需另计。旧 Electron 和 Linux 版本保留用于回退。模型重量和价格均为估算，正式投料与报价应由工坊核对模型、损耗、工艺和实际行情。
 
 ## 界面与操作图
 
@@ -34,12 +34,12 @@
 
 在 [Releases 下载页](https://github.com/hindingonhome/-/releases)下载最新版本：
 
-**标准版与 Lite 独立更新：** [Standard V1.1.0](https://github.com/hindingonhome/-/releases/tag/V1.1.0) 提供分组、尺寸方案、几何导出和制作费用；[Lite v1.0.0](https://github.com/hindingonhome/-/releases/tag/Lite-V1.0.0) 提供浅色三语界面、示例模型、体积/克重、手动单价和基础记录整理。Lite 使用独立应用标识、数据目录和蓝色图标，可与标准版并存。详见 [Lite 使用说明](docs/LITE.md) 和 [Lite 更新日志](docs/LITE-CHANGELOG.md)。
+**标准版与 Lite 独立更新：** [Standard V1.2.0](https://github.com/hindingonhome/-/releases/tag/V1.2.0) 提供分组、尺寸方案、几何导出和制作费用；[Lite v1.1.0](https://github.com/hindingonhome/-/releases/tag/Lite-V1.1.0) 提供浅色三语界面、示例模型、体积/克重、手动单价和基础记录整理。Lite 使用独立应用标识、数据目录和蓝色图标，可与标准版并存。详见 [Lite 使用说明](docs/LITE.md) 和 [Lite 更新日志](docs/LITE-CHANGELOG.md)。
 
-- **Windows 平台 ZIP**：解压后选择 Portable EXE 免安装运行，或使用 Setup EXE 安装。
-- **Linux x64 平台 ZIP**：解压内部 tar.xz 后运行程序；Linux 构建尚需实机验证。
+- **Windows 平台 ZIP**：新版本解压完整ZIP运行 Standard-Slim / Lite-Slim EXE。旧Electron版本仍包含安装版和便携版。
+- **Linux x64 旧版平台 ZIP**：解压内部 tar.xz 后运行程序；Linux 构建尚需实机验证。
 - **离线浏览版**：各平台 ZIP 内附 Offline.html，使用 Chrome、Edge 等现代浏览器打开。
-- 每个发布版本提供两份平台 ZIP 及 `SHA256SUMS.txt`；说明、日志、HTML、图标和许可放在包内，不散装上传。
+- 新标准版提供Windows ZIP；新Lite提供Windows ZIP和iPhone-Web ZIP。另附各自 `SHA256SUMS.txt`；说明、日志、HTML、图标和许可放在包内，不散装上传。
 
 软件无需注册账号，核心计算在本机完成。默认联网获取金、银、铂、钯的参考行情：启动和每 5 分钟更新，可关闭自动更新或点击立即更新。行情源为 Gold API，汇率源为 Frankfurter / ECB；网络请求不包含模型及报价。采用最新参考价只修改当前记录，不自动覆盖手动报价。铜、铝、锡及合金等暂无自动行情，需填写采购报价。断网显示缓存及行情时间；过期数据禁止一键采用。详见 [行情说明](docs/ONLINE-MARKET.md)。Windows 安装程序目前没有商业代码签名证书；请只从本仓库的发布页下载，并核对发布附件中的 `SHA256SUMS.txt`。
 
@@ -97,3 +97,7 @@ STL 等网格的体积计算依赖模型封闭程度；边拓扑通过也不能�
 ## 2026-10-29 验收补充
 
 标准版模型可拖入分组标题，F2或双击分组名称重命名；新建工作区在顶栏显示Ctrl+N。黄铜移入铜后的常用入口。免费废黄铜服务实测不可用，界面标注未接通，不提供虚构价格。Lite 采用独立 `Lite-V1.0.0` 标签和平台包，固定浅色、三种语言，计算记录上方可载入戒指及方块。Windows 7/8.1 不支持当前桌面运行时，备用 HTML 的旧系统兼容性也未验证。
+
+## 小体积架构与兼容性
+
+Windows 使用系统 WebView2 + .NET Framework，未内置浏览器。建议 Windows10/11 x64、.NET4.8及以上。缺少WebView2时提示前往微软官方下载；运行环境自身仍占空间。原Electron最近工程、文件关联及超大文件直接写盘尚未完全替代。完整差异见[标准版说明](docs/STANDARD-SLIM.md)和[Lite说明](docs/LITE-SLIM.md)。需要旧原生能力或Linux时保留旧版。

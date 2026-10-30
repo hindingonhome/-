@@ -10,7 +10,7 @@ const fs=require('node:fs');
  await page.addInitScript(()=>{localStorage.setItem('metal-lab-language','ja');});
  page.on('pageerror',e=>errors.push(e.message));
  await page.route('https://**',route=>route.abort());
- await page.goto(pathToFileURL(path.resolve(process.env.LITE_HTML||'dist-lite/MetalLab-Lite-1.0.0-Review.html')).href);
+ await page.goto(pathToFileURL(path.resolve(process.env.LITE_HTML||'dist-lite/MetalLab-Lite-1.1.0-Review.html')).href);
  await page.waitForTimeout(1500);
  async function light(selector){const styles=await page.locator(selector).first().evaluate(el=>{const s=getComputedStyle(el);return {background:s.backgroundColor,color:s.color};});assert.notEqual(styles.background,'rgb(37, 38, 42)',selector);assert.notEqual(styles.background,'rgb(40, 42, 47)',selector);return styles;}
  await page.locator('.tools-menu summary').click();

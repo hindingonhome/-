@@ -23,3 +23,5 @@ delivery/
 dist-web-base/
 dist-web-lite/
 site-lite/
+slim-dist/
+standard-slim-dist/

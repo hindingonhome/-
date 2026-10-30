@@ -1,5 +1,18 @@
 # 更新和发布
 
+## 当前小体积发行流程 · 2026-10-30
+
+标准版版本号读取package.json（1.2.0），Lite读取scripts/lite-profile.json（1.1.0）。源页面、Lite构建文本、文件属性和发布说明须同步核对。
+
+1. pnpm install --frozen-lockfile；pnpm test；pnpm build:lite:web。
+2. scripts/fetch-webview-sdk.ps1 下载固定1.0.4314.35 SDK并验证SHA256；运行scripts/build-lite-slim.ps1 -Edition Standard -Output standard-slim-dist，Lite使用-Edition Lite -Output slim-dist。
+3. 运行真实WebView2检查脚本scripts/check-standard-slim.cjs和check-lite-slim.cjs；仅隔离测试目录启用CDP9228/9227，正式启动无调试端口。手机另用check-lite-phone.cjs检查。
+4. scripts/package-small-release.ps1 -Edition Standard / Lite，使用全新输出目录。检查ZIP没有Electron、Chromium、旧安装版/便携版组合、测试数据或生成CS源码；Windows ZIP通常约1.2MB，超过5MB应人工检查。
+5. 发布前保存本地验收包和SHA256，提交源码后才创建新Release；使用手动工作流“Publish reviewed small WebView2 edition”。每个新标签只上传列出的平台ZIP与SHA256SUMS.txt；上传后核对远端大小和SHA256。
+6. Standard V1.2.0发布Windows ZIP+校验文件；Lite-V1.1.0发布Windows ZIP+iPhone-Web ZIP+校验文件。历史Electron/Linux标签保留，不把旧Linux文件改名为新版本。旧Electron发布工作流仅供历史维护，不应用于本轮小体积包。
+
+WebView2及.NET是共享依赖，机器总占用不等于ZIP大小；原生集成差异必须随包说明。版本更新后不要把旧stage目录的说明文件带进新包。
+
 ## V1.1.0 当前状态
 
 2026-10-29 标准版 V1.1.0 已发布。用户授权 Lite 在完成本轮缺陷检查、生成最终本地验收包后独立发布；Lite 使用标签 Lite-V1.0.0，不替换标准版附件。

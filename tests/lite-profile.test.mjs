@@ -12,13 +12,16 @@ test('Lite delivery restricts languages and removes disabled feature entry point
   const shared=path.join(out,'standard');
   execFileSync(process.execPath,['build.mjs',shared]);
   execFileSync(process.execPath,['scripts/build-lite.mjs',out,path.join(shared,'金属工坊.html')]);
-  const html=fs.readFileSync(path.join(out,'MetalLab-Lite-1.0.0-Review.html'),'utf8');
+  const html=fs.readFileSync(path.join(out,'MetalLab-Lite-1.1.0-Review.html'),'utf8');
   const language=html.match(/<select id="languageSelect"[^>]*>(.*?)<\/select>/s)[1];
   assert.deepEqual([...language.matchAll(/value="([^"]+)"/g)].map(m=>m[1]),['zh-CN','zh-TW','en']);
   assert.doesNotMatch(html, /id="lite(?:Models|Advanced|Theme)"/);
   assert.match(html,/id="liteModelSelect"/);
   assert.match(html,/data-lite-profile/);
   assert.match(html,/data-lite-icon/);
+  const profile=JSON.parse(fs.readFileSync('scripts/lite-profile.json','utf8'));
+  assert.ok(html.includes('<span class="version">Lite v'+profile.version+'</span>'),'Lite header version follows release config');
+  assert.ok(html.includes('Metal Lab Lite v'+profile.version),'Lite title version follows release config');
   const examples=html.match(/<div class="lite-examples"[^>]*>(.*?)<\/div>/s);
   assert.ok(examples,'sample controls are visible above records');
   assert.match(examples[1],/id="demoBtn"/);

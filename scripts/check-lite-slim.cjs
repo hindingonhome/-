@@ -1,0 +1,12 @@
+const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
+const fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
+(async()=>{const browser=await chromium.connectOverCDP('http://127.0.0.1:9227');try{
+ const page=browser.contexts()[0].pages()[0];const session=await page.context().newCDPSession(page);await session.send('Browser.setDownloadBehavior',{behavior:'allow',downloadPath:path.resolve(process.env.SLIM_PROFILE||'delivery/slim-test-profile'),eventsEnabled:true});await page.waitForURL('https://metallab-lite.local/index.html');await page.waitForTimeout(500);
+ await page.locator('#cubeBtn').click();assert.equal(await page.locator('#mass').innerText(),'0.019');
+ if(!await page.locator('#recordsPanel').evaluate(el=>el.open))await page.locator('#recordsPanel summary').first().click();await page.locator('[data-rename-record]').first().click();await page.locator('#cardName').fill('Slim test');await page.locator('#cardName').dispatchEvent('change');
+ await page.locator('.tools-menu summary').click();await page.locator('#backupBtn').click();await page.waitForTimeout(500);
+ const dir=path.resolve(process.env.SLIM_PROFILE||'delivery/slim-test-profile');const file=fs.readdirSync(dir).find(name=>name.endsWith('.mlab'));assert.ok(file,'native download saved project');assert.equal(JSON.parse(fs.readFileSync(path.join(dir,file),'utf8')).format,'metal-lab-project');
+ await page.locator('#newWorkspaceBtn').click();await page.locator('#discardNewBtn').click();await page.waitForTimeout(150);assert.equal(await page.locator('#cardCount').innerText(),'0');await page.locator('#restoreInput').setInputFiles(path.join(dir,file));await page.waitForTimeout(250);assert.equal(await page.locator('#mass').innerText(),'0.019');
+ await page.locator('.tools-menu summary').click();await page.locator('#languageSelect').selectOption('zh-TW');await page.waitForTimeout(100);assert.equal(await page.locator('html').getAttribute('lang'),'zh-TW');await page.locator('#languageSelect').selectOption('en');await page.locator('#helpBtn').click();assert.ok(await page.locator('#helpDialog').isVisible());
+ fs.writeFileSync('delivery/slim-test-result.json',JSON.stringify({status:'passed',checks:['WebView2 local HTTPS origin','cube mass','record rename','native project save','reset','project restore','Traditional/English','help dialog']},null,2));console.log('WebView2 Slim application checks passed');
+}finally{await browser.close();}})().catch(error=>{console.error(error);process.exit(1)});

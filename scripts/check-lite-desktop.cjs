@@ -5,10 +5,10 @@ const fs=require('node:fs');const path=require('node:path');const assert=require
  const app=await _electron.launch({executablePath:path.join(root,'lite-desktop/desktop-dist/win-unpacked/MetalLab Lite.exe'),args:['--user-data-dir='+profile],env:{...process.env,METAL_LAB_TEST_USER_DATA:profile}});
  try{
   const info=await app.evaluate(({app})=>({version:app.getVersion(),name:app.getName(),userData:app.getPath('userData')}));
-  assert.equal(info.version,'1.0.0');assert.equal(info.name,'MetalLab Lite');assert.equal(path.resolve(info.userData),profile);
+  assert.equal(info.version,'1.1.0');assert.equal(info.name,'MetalLab Lite');assert.equal(path.resolve(info.userData),profile);
   const page=await app.firstWindow();await page.waitForLoadState('domcontentloaded');await page.waitForTimeout(700);
   if(await page.locator('#aboutDialog').evaluate(el=>el.open))await page.locator('#aboutDialog [data-close]').first().click();
-  assert.equal(await page.title(),'Metal Lab Lite v1.0.0');
+  assert.equal(await page.title(),'Metal Lab Lite v1.1.0');
   await page.locator('#cubeBtn').click();await page.waitForTimeout(300);assert.equal(await page.locator('#mass').innerText(),'0.019');
   const file=path.join(profile,'native-check.mlab');
   await app.evaluate(({dialog},file)=>{dialog.showSaveDialog=async()=>({canceled:false,filePath:file});dialog.showMessageBox=async()=>({response:0});},file);

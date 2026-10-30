@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';import {createHash} from 'node:crypto';
 const out=process.argv[2]||'site-lite';await fs.mkdir(out+'/icons',{recursive:true});
-let html=await fs.readFile('dist-web-lite/MetalLab-Lite-1.0.0-Review.html','utf8');
+let html=await fs.readFile('dist-web-lite/MetalLab-Lite-1.1.0-Review.html','utf8');
 const css=await fs.readFile('src/lite-phone.css','utf8'),js=await fs.readFile('src/lite-phone.js','utf8');
 html=html.replace('class="lightweight metallab-lite"','class="lightweight metallab-lite metallab-web"').replace('width=device-width,initial-scale=1','width=device-width,initial-scale=1,viewport-fit=cover');
 html=html.replace('content="#1976c9"','content="#ffffff"').replace(/(<img class="brandmark" src=")[^"]+/, '$1./icons/lite-192.png');
