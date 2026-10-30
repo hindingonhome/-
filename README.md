@@ -6,7 +6,29 @@
 
 > V1.1.0 标准版已验收，发布附件按平台提供。模型重量和价格均为估算，正式投料与报价应由工坊核对模型、损耗、工艺和实际行情。
 
-## 下载与运行
+## 界面与操作图
+
+三种版本都可从 **更多 → 使用说明** 打开软件内教程；新版已把该入口前移。完整操作步骤见 [三版本图文使用手册](docs/USER-GUIDE.md)。
+
+| 版本 | 适合用途 | 使用说明 |
+|---|---|---|
+| 标准版 | 模型分组、尺寸方案、制作费用和完整导出 | [标准版图文步骤](docs/USER-GUIDE.md#标准版) |
+| Lite 桌面版 | 基础体积、克重、密度和材料估算 | [Lite 使用说明](docs/LITE.md) |
+| Lite 手机版 | Safari 免安装使用、触屏计算和文件保存 | [iPhone 使用说明](docs/IPHONE.md) |
+
+**标准版：载入示例、查看模型及克重。**
+
+![标准版模型与计算界面](docs/screenshots/standard-model.png)
+
+**Lite 桌面版：浅色界面，保留基础计算。**
+
+![Lite 桌面版操作界面](docs/screenshots/lite-model.png)
+
+**Lite 手机版：模型、估算、记录三栏切换。**
+
+<img src="docs/screenshots/iphone-model.png" width="300" alt="iPhone 手机模型操作界面"> <img src="docs/screenshots/iphone-estimate.png" width="300" alt="iPhone 手机估算界面">
+
+## 获取与运行
 
 **iPhone 免安装网页预览：** Safari 打开 [MetalLab Lite 网页](https://hindingonhome.github.io/-/)，使用手机专用“模型 / 估算 / 记录”界面。可从“文件”导入模型及保存 .mlab；可选添加到主屏幕。真实 iPhone 和旧 iOS 尚需实机验收，详情见 [iPhone 使用说明](docs/IPHONE.md)。
 
