@@ -1,0 +1,21 @@
+{
+  "name": "MetalLab Lite",
+  "short_name": "MetalLab Lite",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#edf0f3",
+  "theme_color": "#1976c9",
+  "icons": [
+    {
+      "src": "icons/lite-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/lite-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
